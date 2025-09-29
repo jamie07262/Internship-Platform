@@ -4,6 +4,10 @@
 
 An app for staff to shortlist students to internship opportunities created by employers who can accept or reject student.
 
+## Demonstration
+
+[View Platform Demo](https://vimeo.com/1123000556)
+
 ## Core Functionality
 
 1. **(Employer)** Create internship positions
