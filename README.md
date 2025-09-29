@@ -1,5 +1,3 @@
-![Tests](https://github.com/uwidcit/flaskmvc/actions/workflows/dev.yml/badge.svg)
-
 # Internship Platform
 
 An app for staff to shortlist students to internship opportunities created by employers who can accept or reject student.
