@@ -78,8 +78,7 @@ def view_shortlists(staff_id: int) -> Table:
             )
     return table
 
-    
-
+#view all internship positions
 def view_internship_positions() -> Table:
 
     internships = db.session.execute(db.select(Internship)).scalars().all()
@@ -103,6 +102,7 @@ def view_internship_positions() -> Table:
         )
     return table
 
+#search students by skill keyword if list is too long
 def search_students_by_skill(skill_keyword: str) -> Table:
 
     students = db.session.execute(

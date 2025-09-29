@@ -4,10 +4,10 @@ from App.models.staff import Staff
 class Shortlist(db.Model): 
     id = db.Column(db.Integer, primary_key=True)
     staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=False)
-    internship_id = db.Column(db.Integer, db.ForeignKey('internship.id'), nullable=False)
+    internship_id = db.Column(db.Integer, db.ForeignKey('internship.id', ondelete='CASCADE'), nullable=False, unique=True)
 
-    internship = db.relationship('Internship', backref=db.backref('shortlists', lazy=True))
-    staff = db.relationship('Staff', lazy=True) 
+    internship = db.relationship('Internship', back_populates='shortlist')
+    staff = db.relationship('Staff', backref='shortlists', lazy=True) 
     entries = db.relationship("ShortlistEntry", backref="shortlist", cascade="all, delete-orphan")
 
     def __init__(self, staff_id, internship_id):

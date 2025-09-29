@@ -17,7 +17,6 @@ def create_employer(username: str, password: str, email: str, companyName: str) 
 def view_shortlist(employer_id: int) -> Table:
     employer = db.session.get(Employer, employer_id)
     if not employer:
-        # Return empty table if employer doesn't exist
         table = Table(title="Employer Not Found")
         return table
     
@@ -58,7 +57,6 @@ def view_shortlist(employer_id: int) -> Table:
                     entry.status
                 )
         else:
-            # Show internship even if no students are shortlisted yet
             table.add_row(
                 str(shortlist.id),
                 str(shortlist.internship_id),
@@ -73,7 +71,7 @@ def view_shortlist(employer_id: int) -> Table:
 
 def accept_student(employer_id: int, internship_id: int, student_id: int) -> str:
     try:
-        # First verify the internship belongs to the employer
+        # Checking if the internship belongs to the employer
         internship = db.session.get(Internship, internship_id)
         if not internship:
             return f"Internship not found for ID {internship_id}."
@@ -83,15 +81,18 @@ def accept_student(employer_id: int, internship_id: int, student_id: int) -> str
         shortlist = db.session.execute(
             db.select(Shortlist).filter_by(internship_id=internship_id)
         ).scalar_one_or_none()
+
         if not shortlist:
             return f"No shortlist found for internship ID {internship_id}."
+        
         entry = db.session.execute(
             db.select(ShortlistEntry).filter_by(shortlist_id=shortlist.id, student_id=student_id)
         ).scalar_one_or_none()
+
         if not entry:
             return f"No shortlist entry for student ID {student_id} in internship ID {internship_id}."
         
-        # Update the status to "Accepted"
+        # Update the status to "accepted"
         entry.status = "accepted"
         db.session.commit()
         return f"Student ID {student_id} has been accepted by {internship.employer.username}."
@@ -101,7 +102,7 @@ def accept_student(employer_id: int, internship_id: int, student_id: int) -> str
 
 def reject_student(employer_id: int, internship_id: int, student_id: int) -> str:
     try:
-        # First verify the internship belongs to the employer
+        # Checking if the internship belongs to the employer
         internship = db.session.get(Internship, internship_id)
         if not internship:
             return f"Internship not found for ID {internship_id}."
@@ -111,15 +112,18 @@ def reject_student(employer_id: int, internship_id: int, student_id: int) -> str
         shortlist = db.session.execute(
             db.select(Shortlist).filter_by(internship_id=internship_id)
         ).scalar_one_or_none()
+
         if not shortlist:
             return f"No shortlist found for internship ID {internship_id}."
+        
         entry = db.session.execute(
             db.select(ShortlistEntry).filter_by(shortlist_id=shortlist.id, student_id=student_id)
         ).scalar_one_or_none()
+
         if not entry:
             return f"No shortlist entry for student ID {student_id} in internship ID {internship_id}."
         
-        # Update the status to "Rejected"
+        # Update the status to "rejected"
         entry.status = "rejected"
         db.session.commit()
         return f"Student ID {student_id} has been rejected by {internship.employer.username}."

@@ -1,30 +1,17 @@
-import click, pytest, sys
-from flask.cli import with_appcontext, AppGroup
+import click
+from flask.cli import AppGroup
 from rich.table import Table
 from rich.console import Console
-
-from App.database import db, get_migrate
-from App.models import User
+from App.database import get_migrate
 from App.main import create_app
 from App.controllers.user import list_users
 from App.controllers.student import create_student, view_my_shortlists
-from App.controllers.employer import (
-    create_employer,
-    view_shortlist as employer_view_shortlist,
-    accept_student,
-    reject_student
-)
+from App.controllers.employer import (create_employer, view_shortlist as employer_view_shortlist, accept_student, reject_student)
 from App.controllers.internship import create_internship_position
-from App.controllers.staff import (
-    create_staff,
-    list_students,
-    search_students_by_skill,
-    view_shortlists as staff_view_shortlists,
-    view_internship_positions
-)
+from App.controllers.staff import (create_staff, list_students, search_students_by_skill, view_shortlists as staff_view_shortlists, view_internship_positions)
 from App.controllers.shortlist import create_shortlist
 from App.controllers.shortlistEntry import add_student_to_shortlist
-from App.controllers.initialize import ( initialize )
+from App.controllers.initialize import initialize
 
 app = create_app()
 migrate = get_migrate(app)
@@ -92,7 +79,6 @@ def create_staff_command(username, password, email):
     print("  flask employer create <username> <password> <email> <companyname>")
     print("---------------------------------------------------------------------------")
    
-
 @staff_cli.command("view-internships", help="View all internship positions")
 def view_internships_command():
     table = view_internship_positions()
@@ -126,7 +112,6 @@ def list_students_command():
     print("  flask staff add-student <staff_id> <shortlist_id> <student_id>")
     print("---------------------------------------------------------------------------")
 
-
 @staff_cli.command("search-students", help="Search students by skill")
 @click.argument("skill_keyword", default="Python")  
 def search_students_command(skill_keyword):
@@ -137,7 +122,6 @@ def search_students_command(skill_keyword):
     print("\nNext: As staff, add a student to a shortlist with:")
     print("  flask staff add-student <staff_id> <shortlist_id> <student_id>")
     print("---------------------------------------------------------------------------")
-
 
 @staff_cli.command("add-student", help="Add a student to a shortlist")
 @click.argument("staff_id", type=int)
@@ -151,7 +135,6 @@ def add_student_command(staff_id, shortlist_id, student_id):
     print("  flask employer view-shortlist <employer_id>")
     print("---------------------------------------------------------------------------")
 
-
 @staff_cli.command("view-shortlists", help="View all shortlists")
 @click.argument("staff_id", type=int)
 def view_shortlist_command(staff_id):
@@ -160,7 +143,6 @@ def view_shortlist_command(staff_id):
     print("---------------------------------------------------------------------------")
     console.print(table)
     print("---------------------------------------------------------------------------")
-
 
 
 #### EMPLOYER COMMANDS ####
@@ -176,7 +158,6 @@ def create_employer_command(username, password, email, companyname):
     print("\nNext: Create a student with:")
     print("  flask student create <firstname> <lastname> <username> <password> <email> <skills>")
     print("---------------------------------------------------------------------------")
-   
 
 @employer_cli.command("view-shortlist", help="View all shortlists for an employer")
 @click.argument("employer_id", type=int)
@@ -202,7 +183,6 @@ def accept_student_command(employer_id, internship_id, student_id):
     print("  flask student view-my-shortlist <student_id>")
     print("---------------------------------------------------------------------------")
 
-
 @employer_cli.command("reject-student", help="Reject a student from an internship")     
 @click.argument("employer_id", type=int)
 @click.argument("internship_id", type=int)
@@ -214,7 +194,6 @@ def reject_student_command(employer_id, internship_id, student_id):
     print("\nNext: As student, view your shortlist with:")
     print("  flask student view-my-shortlist <student_id>")
     print("---------------------------------------------------------------------------")
-
 
 
 #### INTERNSHIP COMMANDS ####
@@ -249,7 +228,6 @@ def create_student_command(username, password, firstname, lastname, email, skill
     print("\nNext: Create an internship for this employer with:")
     print("  flask internship create <employer_id> <title> <description> <duration>")
     print("---------------------------------------------------------------------------")
-   
 
 @student_cli.command("view-my-shortlist", help="View my shortlists")
 @click.argument("student_id", type=int)

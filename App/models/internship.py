@@ -1,5 +1,4 @@
 from App.database import db
-from App.models.employer import Employer
 
 class Internship(db.Model): 
     id = db.Column(db.Integer, primary_key=True)    
@@ -8,7 +7,8 @@ class Internship(db.Model):
     description = db.Column(db.String(100), nullable=True)
     duration = db.Column(db.Integer, nullable=False)
 
-    employer = db.relationship('Employer', backref=db.backref('internships', lazy=True))
+    employer = db.relationship('Employer', backref=db.backref('internships', lazy=True, cascade="all, delete-orphan"))
+    shortlist = db.relationship('Shortlist', back_populates='internship', uselist=False, cascade="all, delete-orphan", single_parent=True)
 
     def __init__(self, employer_id, title, description, duration):
         self.employer_id = employer_id

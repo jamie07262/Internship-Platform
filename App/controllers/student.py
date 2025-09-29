@@ -1,15 +1,15 @@
-# from flask import Blueprint, render_template, request, redirect, url_for, flash
 from App.models import Student, Shortlist, ShortlistEntry
 from App import db
 from rich.table import Table
 
-#student applying for internship
+#student being created and is considered an applicant for internships
 def create_student(username, password, email, firstName, lastName, skills):
     student = Student(username, password, email, firstName, lastName, skills)
     db.session.add(student)
     db.session.commit()
     return student
 
+# student views their shortlisted internships
 def view_my_shortlists(student_id: int) -> Table:
     from App.models import Internship, Employer
 

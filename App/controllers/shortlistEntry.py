@@ -4,10 +4,11 @@ from sqlalchemy.exc import SQLAlchemyError
 
 def add_student_to_shortlist(staff_id: int, shortlist_id: int, student_id: int) -> str:
     try:
-        # Check if the shortlist student and staff exist
+        # Check if the shortlist, student, staff and internship exist
         shortlist = db.session.get(Shortlist, shortlist_id)
         student = db.session.get(Student, student_id)
         staff = db.session.get(Staff, staff_id)
+        internship = db.session.get(Internship, shortlist.internship_id) if shortlist else None
 
         if not shortlist:
             return f"Shortlist with ID {shortlist_id} does not exists"
@@ -15,8 +16,6 @@ def add_student_to_shortlist(staff_id: int, shortlist_id: int, student_id: int) 
             return f"Student with ID {student_id} does not exist"
         if not staff:
             return f"Staff with ID {staff_id} does not exist"
-        
-        internship = db.session.get(Internship, shortlist.internship_id)
         if not internship:
             return f"Internship with ID {shortlist.internship_id} does not exist"
 

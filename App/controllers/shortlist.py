@@ -4,11 +4,12 @@ from sqlalchemy.exc import SQLAlchemyError
 
 def create_shortlist(staff_id: int, internship_id: int) -> str:
     try:
+        # Check if the staff and internship exist
         staff = db.session.get(Staff, staff_id)
+        internship = db.session.get(Internship, internship_id)
+
         if not staff:
             return f"Staff with ID {staff_id} does not exist"
-
-        internship = db.session.get(Internship, internship_id)
         if not internship:
             return f"Internship with ID {internship_id} does not exist"
 
