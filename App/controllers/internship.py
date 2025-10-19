@@ -4,7 +4,7 @@ from rich.table import Table
 from sqlalchemy.exc import SQLAlchemyError
 
 # create internship position
-def create_internship_position(employer_id: int, title:str, description: str, duration:int) -> str:
+def create_internship_position(employer_id: int, title:str, description: str, duration:int):
     employer: Employer | None = db.session.get(Employer, employer_id)
     if employer is None:
         return f"Employer with ID {employer_id} does not exist"

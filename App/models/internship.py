@@ -15,6 +15,15 @@ class Internship(db.Model):
         self.title = title
         self.description = description
         self.duration = duration
+
+    def get_json(self):
+        return {
+            'id': self.id,
+            'employer_id': self.employer_id,
+            'title': self.title,
+            'description': self.description,
+            'duration': self.duration
+        }
     
     def __repr__(self):
         return f'<Internship Position (ID: {self.id}) \'{self.title}\' created by {self.employer.username} (ID: {self.employer.id})>'

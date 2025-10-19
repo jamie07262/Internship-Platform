@@ -14,5 +14,12 @@ class Shortlist(db.Model):
         self.staff_id = staff_id
         self.internship_id = internship_id
 
+    def get_json(self):
+        return {
+            'id': self.id,
+            'staff_id': self.staff_id,
+            'internship_id': self.internship_id
+        }
+
     def __repr__(self):
         return f'<Shortlist entries: {len(self.entries)}>'

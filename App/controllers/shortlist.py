@@ -2,7 +2,7 @@ from App.models import Shortlist, Staff, Internship
 from App import db
 from sqlalchemy.exc import SQLAlchemyError
 
-def create_shortlist(staff_id: int, internship_id: int) -> str:
+def create_shortlist(staff_id: int, internship_id: int):
     try:
         # Check if the staff and internship exist
         staff = db.session.get(Staff, staff_id)
@@ -23,7 +23,7 @@ def create_shortlist(staff_id: int, internship_id: int) -> str:
         shortlist = Shortlist(staff_id=staff_id, internship_id=internship_id)
         db.session.add(shortlist)
         db.session.commit()
-        return f"Shortlist(ID:{shortlist.id}) created for Internship ID {internship_id} by Staff ID {staff_id}"
+        return shortlist
     except SQLAlchemyError as e:
         db.session.rollback()
         return f"Error creating shortlist: {e}"

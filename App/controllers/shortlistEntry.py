@@ -2,7 +2,7 @@ from App.models import ShortlistEntry, Shortlist, Student, Staff, Internship
 from App import db
 from sqlalchemy.exc import SQLAlchemyError
 
-def add_student_to_shortlist(staff_id: int, shortlist_id: int, student_id: int) -> str:
+def add_student_to_shortlist(staff_id: int, shortlist_id: int, student_id: int):
     try:
         # Check if the shortlist, student, staff and internship exist
         shortlist = db.session.get(Shortlist, shortlist_id)
@@ -10,25 +10,23 @@ def add_student_to_shortlist(staff_id: int, shortlist_id: int, student_id: int) 
         staff = db.session.get(Staff, staff_id)
         internship = db.session.get(Internship, shortlist.internship_id) if shortlist else None
 
-        if not shortlist:
-            return f"Shortlist with ID {shortlist_id} does not exists"
-        if not student:
-            return f"Student with ID {student_id} does not exist"
-        if not staff:
-            return f"Staff with ID {staff_id} does not exist"
-        if not internship:
-            return f"Internship with ID {shortlist.internship_id} does not exist"
+        if not shortlist or not student or not staff or not internship:
+            return None
+
+        # Check if student already in shortlist
+        existing = db.session.execute(
+            db.select(ShortlistEntry).filter_by(shortlist_id=shortlist_id, student_id=student_id)
+        ).scalar_one_or_none()
+        if existing:
+            return None
 
         # Add the student to the shortlist
         shortlist_entry = ShortlistEntry(shortlist_id=shortlist_id, student_id=student_id, staff_id=staff_id)
         db.session.add(shortlist_entry)
         db.session.commit()
-        return (
-            f"Student {student.firstName} {student.lastName} added to"
-            f" Internship: {internship.title} (ID: {internship.id}), shortlisted by Staff ID {staff_id}"
-        )
+        return shortlist_entry
     except SQLAlchemyError as e:
         db.session.rollback()
-        return f"Error adding student to shortlist: {e}"
+        return None
 
 

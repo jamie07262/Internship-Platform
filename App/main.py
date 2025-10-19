@@ -10,8 +10,9 @@ from App.config import load_config
 
 
 from App.controllers import (
-    setup_jwt,
-    add_auth_context
+    # setup_jwt,
+    # add_auth_context,
+    setup_jwt
 )
 
 from App.views import views, setup_admin
@@ -26,7 +27,7 @@ def create_app(overrides={}):
     app = Flask(__name__, static_url_path='/static')
     load_config(app, overrides)
     CORS(app)
-    add_auth_context(app)
+    # add_auth_context(app)
     photos = UploadSet('photos', TEXT + DOCUMENTS + IMAGES)
     configure_uploads(app, photos)
     add_views(app)

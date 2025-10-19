@@ -12,6 +12,14 @@ class ShortlistEntry(db.Model):
         self.shortlist_id = shortlist_id
         self.student_id = student_id
 
+    def get_json(self):
+        return {
+            'id': self.id,
+            'staff_id': self.staff_id,
+            'shortlist_id': self.shortlist_id,
+            'student_id': self.student_id,
+            'status': self.status
+        }
 
     def __repr__(self):
         return f'<ShortlistEntry StaffID: {self.staff_id}, ShortlistID: {self.shortlist_id}, StudentID: {self.student_id}, Status: {self.status}>'

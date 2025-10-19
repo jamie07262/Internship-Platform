@@ -4,11 +4,11 @@ from rich.table import Table
 from rich.console import Console
 from App.database import get_migrate
 from App.main import create_app
-from App.controllers.user import list_users
+from App.controllers.user import get_all_users_json
 from App.controllers.student import create_student, view_my_shortlists
 from App.controllers.employer import (create_employer, view_shortlist as employer_view_shortlist, accept_student, reject_student)
 from App.controllers.internship import create_internship_position
-from App.controllers.staff import (create_staff, list_students, search_students_by_skill, view_shortlists as staff_view_shortlists, view_internship_positions)
+from App.controllers.staff import (create_staff, list_students, view_shortlists as staff_view_shortlists, view_internship_positions)
 from App.controllers.shortlist import create_shortlist
 from App.controllers.shortlistEntry import add_student_to_shortlist
 from App.controllers.initialize import initialize
@@ -25,10 +25,11 @@ def init():
 # This command lists all users in the system
 @app.cli.command("list-users", help="List all users in the system")
 def list_users_command():
-    table = list_users()
-    console = Console()
+    users_data = get_all_users_json()
     print("---------------------------------------------------------------------------")
-    console.print(table)
+    print("All Users:")
+    for user in users_data:
+        print(f"ID: {user.get('id', 'N/A')}, Username: {user.get('username', 'N/A')}, Email: {user.get('email', 'N/A')}")
     print("---------------------------------------------------------------------------")
 
 @app.cli.command("help", help="Show CLI help for all commands")
@@ -42,12 +43,11 @@ def show_help():
     
     # Staff commands
     table.add_row("flask staff create <username> <password> <email>", "Create a new staff member")
-    table.add_row("flask staff list-students", "List all students")
-    table.add_row("flask staff search-students <skill_keyword>", "Search students by skill")
+    table.add_row("flask staff list-students <staff_id>", "List all students (requires staff ID)")
     table.add_row("flask staff create-shortlist <staff_id> <internship_id>", "Create a shortlist for an internship")
     table.add_row("flask staff add-student <staff_id> <shortlist_id> <student_id>", "Add a student to a shortlist")
     table.add_row("flask staff view-shortlists <staff_id>", "View all shortlists for a staff member")
-    table.add_row("flask staff view-internships", "View all internship positions")
+    table.add_row("flask staff view-internships <staff_id>", "View all internship positions (requires staff ID)")
 
     # Employer commands
     table.add_row("flask employer create <username> <password> <email> <companyname>", "Create a new employer")
@@ -59,7 +59,7 @@ def show_help():
     table.add_row("flask internship create <employer_id> <title> <description> <duration>", "Create an internship position")
 
     # Student commands
-    table.add_row("flask student create <username> <password> <firstname> <lastname> <email> <skills>", "Create a new student")
+    table.add_row("flask student create <username> <password> <email> <firstname> <lastname> <skills>", "Create a new student")
     table.add_row("flask student view-my-shortlist <student_id>", "View your shortlist(s)")
 
     console = Console()
@@ -80,11 +80,17 @@ def create_staff_command(username, password, email):
     print("---------------------------------------------------------------------------")
    
 @staff_cli.command("view-internships", help="View all internship positions")
-def view_internships_command():
-    table = view_internship_positions()
-    console = Console()
+@click.argument("staff_id", type=int)
+def view_internships_command(staff_id):
+    result = view_internship_positions(staff_id)
     print("---------------------------------------------------------------------------")
-    console.print(table)
+    if "error" in result:
+        print(f"Error: {result['error']}")
+    else:
+        print("All Internship Positions:")
+        for internship in result.get('internships', []):
+            print(f"ID: {internship['id']}, Title: {internship['title']}, Company: {internship['company_name']}, Duration: {internship['duration']} months")
+        print(f"Total: {result.get('total', 0)} internships")
     print("\nNext: As staff, create a shortlist for an internship with:")
     print("  flask staff create-shortlist <staff_id> <internship_id>")
     print("---------------------------------------------------------------------------")
@@ -103,22 +109,17 @@ def create_shortlist_command(staff_id, internship_id):
     print("---------------------------------------------------------------------------")
 
 @staff_cli.command("list-students", help="List all students")
-def list_students_command():
-    table = list_students()
-    console = Console()
+@click.argument("staff_id", type=int)
+def list_students_command(staff_id):
+    result = list_students(staff_id)
     print("---------------------------------------------------------------------------")
-    console.print(table)
-    print("\nNext: As staff, add a student to a shortlist with:")
-    print("  flask staff add-student <staff_id> <shortlist_id> <student_id>")
-    print("---------------------------------------------------------------------------")
-
-@staff_cli.command("search-students", help="Search students by skill")
-@click.argument("skill_keyword", default="Python")  
-def search_students_command(skill_keyword):
-    table = search_students_by_skill(skill_keyword)
-    console = Console()
-    print("---------------------------------------------------------------------------")
-    console.print(table)
+    if "error" in result:
+        print(f"Error: {result['error']}")
+    else:
+        print("All Students:")
+        for student in result.get('students', []):
+            print(f"ID: {student['id']}, Name: {student['firstName']} {student['lastName']}, Email: {student['email']}, Skills: {student['skills']}")
+        print(f"Total: {result.get('total', 0)} students")
     print("\nNext: As staff, add a student to a shortlist with:")
     print("  flask staff add-student <staff_id> <shortlist_id> <student_id>")
     print("---------------------------------------------------------------------------")
@@ -130,7 +131,10 @@ def search_students_command(skill_keyword):
 def add_student_command(staff_id, shortlist_id, student_id):
     result = add_student_to_shortlist(staff_id, shortlist_id, student_id)
     print("---------------------------------------------------------------------------")
-    print(result)
+    if result:
+        print(f"Successfully added student {student_id} to shortlist {shortlist_id}")
+    else:
+        print("Failed to add student to shortlist")
     print("\nNext: As employer, view your internship shortlist with:")
     print("  flask employer view-shortlist <employer_id>")
     print("---------------------------------------------------------------------------")
@@ -138,10 +142,15 @@ def add_student_command(staff_id, shortlist_id, student_id):
 @staff_cli.command("view-shortlists", help="View all shortlists")
 @click.argument("staff_id", type=int)
 def view_shortlist_command(staff_id):
-    table = staff_view_shortlists(staff_id)
-    console = Console()
+    result = staff_view_shortlists(staff_id)
     print("---------------------------------------------------------------------------")
-    console.print(table)
+    if "error" in result:
+        print(f"Error: {result['error']}")
+    else:
+        print("All Shortlists:")
+        for shortlist in result.get('shortlists', []):
+            print(f"ID: {shortlist['shortlist_id']}, Internship: {shortlist['internship_title']}, Company: {shortlist['company_name']}")
+        print(f"Total: {result.get('total', 0)} shortlists")
     print("---------------------------------------------------------------------------")
 
 
@@ -162,10 +171,46 @@ def create_employer_command(username, password, email, companyname):
 @employer_cli.command("view-shortlist", help="View all shortlists for an employer")
 @click.argument("employer_id", type=int)
 def view_shortlist_command(employer_id):
-    table = employer_view_shortlist(employer_id)
-    console = Console()
+    result = employer_view_shortlist(employer_id)
     print("---------------------------------------------------------------------------")
-    console.print(table)
+    if "error" in result:
+        print(f"Error: {result['error']}")
+    else:
+        employer_info = result.get('employer', {})
+        print(f"Shortlists for Employer {employer_info.get('company_name', 'N/A')} (ID: {employer_info.get('id', 'N/A')}):")
+        
+        # Group entries by shortlist_id and internship
+        shortlist_groups = {}
+        for entry in result.get('shortlists', []):
+            shortlist_id = entry['shortlist_id']
+            internship_title = entry['internship_title']
+            key = f"{shortlist_id}_{internship_title}"
+            
+            if key not in shortlist_groups:
+                shortlist_groups[key] = {
+                    'shortlist_id': shortlist_id,
+                    'internship_title': internship_title,
+                    'students': []
+                }
+            
+            if entry['student_id'] != "No students":
+                shortlist_groups[key]['students'].append({
+                    'id': entry['student_id'],
+                    'name': entry['student_name'],
+                    'email': entry['student_email'],
+                    'skills': entry['student_skills'],
+                    'status': entry['status']
+                })
+        
+        for group in shortlist_groups.values():
+            print(f"Shortlist ID: {group['shortlist_id']}, Internship: {group['internship_title']}")
+            if group['students']:
+                for student in group['students']:
+                    print(f"  - Student: {student['name']} (ID: {student['id']}) - Status: {student['status']}")
+            else:
+                print("  - No students in this shortlist")
+        
+        print(f"Total entries: {result.get('total', 0)}")
     print("\nNext: As employer, accept or reject a student with:")
     print("  flask employer accept-student <employer_id> <internship_id> <student_id>")
     print("  flask employer reject-student <employer_id> <internship_id> <student_id>")
@@ -215,13 +260,13 @@ def create_internship_command(employer_id, title, description, duration):
 #### STUDENT COMMANDS ####
 student_cli = AppGroup('student', help='Student object commands')
 @student_cli.command("create", help="Creates a student")
-@click.argument("firstname", default="Jane")
-@click.argument("lastname", default="Doe")
 @click.argument("username", default="janedoe")
 @click.argument("password", default="janedoepass")
 @click.argument("email", default="jane.doe@student.com")
+@click.argument("firstname", default="Jane")
+@click.argument("lastname", default="Doe")
 @click.argument("skills", default="Angular, TypeScript")
-def create_student_command(username, password, firstname, lastname, email, skills):
+def create_student_command(username, password, email, firstname, lastname, skills):
     result = create_student(username, password, email, firstname, lastname, skills)
     print("---------------------------------------------------------------------------")
     print(result)
@@ -232,10 +277,15 @@ def create_student_command(username, password, firstname, lastname, email, skill
 @student_cli.command("view-my-shortlist", help="View my shortlists")
 @click.argument("student_id", type=int)
 def view_my_shortlist_command(student_id):
-    table = view_my_shortlists(student_id)
-    console = Console()
+    result = view_my_shortlists(student_id)
     print("---------------------------------------------------------------------------")
-    console.print(table)
+    if "error" in result:
+        print(f"Error: {result['error']}")
+    else:
+        print(f"Shortlists for Student {result.get('student_id', 'N/A')}:")
+        for shortlist in result.get('shortlists', []):
+            print(f"Internship: {shortlist['internship_title']}, Company: {shortlist['company_name']}, Status: {shortlist['status']}")
+        print(f"Total shortlists: {result.get('total', 0)}")
     print("---------------------------------------------------------------------------")
 
 app.cli.add_command(staff_cli)

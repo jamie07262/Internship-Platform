@@ -12,5 +12,15 @@ class Staff(User):
     def __init__(self, username, password, email):
         super().__init__(username=username, password=password, email=email)
 
+    def get_json(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'firstName': self.firstName,
+            'lastName': self.lastName,
+            'type': 'staff'
+        }
+
     def __repr__(self):
         return f"<Staff with ID {self.id} and username {self.username}>"

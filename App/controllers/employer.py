@@ -1,9 +1,8 @@
 from App.database import db
 from App.models import Employer, Internship, ShortlistEntry, Shortlist, Student
-from rich.table import Table
 from sqlalchemy.exc import SQLAlchemyError
 
-def create_employer(username: str, password: str, email: str, companyName: str) -> str:
+def create_employer(username: str, password: str, email: str, companyName: str):
     try:
         employer = Employer(username, password, email, companyName)
         db.session.add(employer)
@@ -14,60 +13,61 @@ def create_employer(username: str, password: str, email: str, companyName: str) 
         return f"Error creating employer: {e}"
 
 
-def view_shortlist(employer_id: int) -> Table:
-    employer = db.session.get(Employer, employer_id)
-    if not employer:
-        table = Table(title="Employer Not Found")
-        return table
-    
-    # Get all shortlists for all internships created by this employer
-    shortlists = db.session.execute(
-        db.select(Shortlist)
-        .join(Internship, Shortlist.internship_id == Internship.id)
-        .filter(Internship.employer_id == employer_id)
-    ).scalars().all()
-
-    table = Table(title=f"{employer.companyName} - All Shortlists")    
-    table.add_column("Shortlist ID", style="magenta")
-    table.add_column("Internship ID", style="cyan")
-    table.add_column("Internship Title", style="green")
-    table.add_column("Student ID", style="cyan")
-    table.add_column("Student Name", style="yellow")
-    table.add_column("Student Email", style="blue")
-    table.add_column("Student Skills", style="magenta")
-    table.add_column("Status", style="red")
-
-    for shortlist in shortlists:
-        internship = db.session.get(Internship, shortlist.internship_id)
-        entries = db.session.execute(
-            db.select(ShortlistEntry).filter_by(shortlist_id=shortlist.id)
-        ).scalars().all()
+def view_shortlist(employer_id: int) -> dict:
+    try:
+        employer = db.session.get(Employer, employer_id)
+        if not employer:
+            return {"error": f"Employer with ID {employer_id} not found"}
         
-        if entries:
-            for entry in entries:
-                student = db.session.get(Student, entry.student_id)
-                table.add_row(
-                    str(shortlist.id),
-                    str(shortlist.internship_id),
-                    internship.title if internship else "N/A",
-                    str(student.id) if student else "N/A",
-                    f"{student.firstName} {student.lastName}" if student else "N/A",
-                    student.email if student else "N/A",
-                    student.skills if student else "N/A",
-                    entry.status
-                )
-        else:
-            table.add_row(
-                str(shortlist.id),
-                str(shortlist.internship_id),
-                internship.title if internship else "N/A",
-                "No students",
-                "N/A",
-                "N/A", 
-                "N/A",
-                "N/A"
-            )
-    return table
+        # Get all shortlists for all internships created by this employer
+        shortlists = db.session.execute(
+            db.select(Shortlist)
+            .join(Internship, Shortlist.internship_id == Internship.id)
+            .filter(Internship.employer_id == employer_id)
+        ).scalars().all()
+
+        shortlists_data = []
+        for shortlist in shortlists:
+            internship = db.session.get(Internship, shortlist.internship_id)
+            entries = db.session.execute(
+                db.select(ShortlistEntry).filter_by(shortlist_id=shortlist.id)
+            ).scalars().all()
+            
+            if entries:
+                for entry in entries:
+                    student = db.session.get(Student, entry.student_id)
+                    shortlists_data.append({
+                        "shortlist_id": shortlist.id,
+                        "internship_id": shortlist.internship_id,
+                        "internship_title": internship.title if internship else "N/A",
+                        "student_id": student.id if student else None,
+                        "student_name": f"{student.firstName} {student.lastName}" if student else "N/A",
+                        "student_email": student.email if student else "N/A",
+                        "student_skills": student.skills if student else "N/A",
+                        "status": entry.status
+                    })
+            else:
+                shortlists_data.append({
+                    "shortlist_id": shortlist.id,
+                    "internship_id": shortlist.internship_id,
+                    "internship_title": internship.title if internship else "N/A",
+                    "student_id": "No students",
+                    "student_name": "N/A",
+                    "student_email": "N/A",
+                    "student_skills": "N/A",
+                    "status": "N/A"
+                })
+        
+        return {
+            "employer": {
+                "id": employer.id,
+                "company_name": employer.companyName
+            },
+            "shortlists": shortlists_data,
+            "total": len(shortlists_data)
+        }
+    except SQLAlchemyError as e:
+        return {"error": f"Database error: {str(e)}"}
 
 def accept_student(employer_id: int, internship_id: int, student_id: int) -> str:
     try:

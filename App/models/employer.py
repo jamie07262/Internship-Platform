@@ -14,5 +14,16 @@ class Employer(User):
         super().__init__(username, password, email)
         self.companyName = companyName
 
+    def get_json(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'firstName': self.firstName,
+            'lastName': self.lastName,
+            'companyName': self.companyName,
+            'type': 'employer'
+        }
+
     def __repr__(self):
         return f"<Employer with ID {self.id} and username {self.username} ({self.companyName})>"
