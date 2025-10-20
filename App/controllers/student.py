@@ -3,7 +3,7 @@ from App import db
 from sqlalchemy.exc import SQLAlchemyError
 
 #student being created and is considered an applicant for internships
-def create_student(username, password, email, firstName, lastName, skills):
+def create_student(username, password, email, firstName, lastName, skills): #removed None defaults for firstName and lastName
     try:
         student = Student(username, password, email, firstName, lastName, skills)
         db.session.add(student)

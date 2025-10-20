@@ -4,15 +4,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from App.main import create_app
 from App.database import db, create_db
 from App.models import User, Student, Staff, Employer
-from App.controllers import (
-    create_user,
-    get_all_users_json,
-    login,
-    get_user,
-    get_all_users,
-    get_user_by_username,
-    update_user
-)
+from App.controllers import *
 
 
 LOGGER = logging.getLogger(__name__)
@@ -86,16 +78,37 @@ def test_authenticate():
     user = create_user("bob", "bobpass","bob@example.com", "Bob", "Frank")
     assert login("bob", "bobpass") != None
 
+# def test_create_user():
+#     user = create_user("bob", "bobpass","bob1@example.com", "Bob", "Frank")
+#     get_all_users()
+#     assert user.username == "bob"
+
 class UsersIntegrationTests(unittest.TestCase):
 
     def test_create_user(self):
-        user = create_user("rick", "bobpass","bob@example.com", "Bob", "Frank")
+        user = create_user("rick", "rickpass","rick@example.com", "Rick", "Sanchez")
         get_all_users()
         assert user.username == "rick"
 
+    def test_create_student(self):
+        student = create_student("student1", "studentpass","student@mail.com","Jane", "Doe", "Coding Design")
+        get_all_users()
+        assert student.username == "student1"
+
+    def test_create_staff(self):
+        staff = create_staff("trudy", "trudypass","trudy@mail.com")
+        get_all_users()
+        assert staff.username == "trudy"
+
+    def test_create_employer(self):
+        employer = create_employer("warren","warrenpass","warren@mail.com","Microsoft")
+        get_all_users()
+        assert employer.username == "warren"
+
     def test_get_all_users_json(self):
+        user = create_user("mimi", "mimipass","mimi@example.com", "Mimi", "Smith")
         users_json = get_all_users_json()
-        self.assertListEqual([{"id":1, "username":"bob"}, {"id":2, "username":"rick"}], users_json)
+        self.assertListEqual([{"id":1, "username":"mimi", "email":"mimi@example.com", "firstName":"Mimi", "lastName":"Smith"}], users_json)
 
     # Tests data changes in the database
     def test_update_user(self):
