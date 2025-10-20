@@ -9,6 +9,7 @@ from App.controllers import (
     get_all_users_json,
     login,
     get_user,
+    get_all_users,
     get_user_by_username,
     update_user
 )
@@ -89,7 +90,7 @@ class UsersIntegrationTests(unittest.TestCase):
 
     def test_create_user(self):
         user = create_user("rick", "bobpass","bob@example.com", "Bob", "Frank")
-        get_all_users_json()
+        get_all_users()
         assert user.username == "rick"
 
     def test_get_all_users_json(self):
