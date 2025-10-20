@@ -6,6 +6,8 @@ class Student(User):
     id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     skills = db.Column(db.String(255))
 
+    shortlist_entries = db.relationship('ShortlistEntry', backref='student', lazy=True)
+
     __mapper_args__ = {
         'polymorphic_identity': 'student',
     }
