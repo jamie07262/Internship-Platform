@@ -63,8 +63,7 @@ def view_shortlist(employer_id: int) -> dict:
                 "id": employer.id,
                 "company_name": employer.companyName
             },
-            "shortlists": shortlists_data,
-            "total": len(shortlists_data)
+            "shortlists": shortlists_data
         }
     except SQLAlchemyError as e:
         return {"error": f"Database error: {str(e)}"}
@@ -95,7 +94,7 @@ def accept_student(employer_id: int, internship_id: int, student_id: int) -> str
         # Update the status to "accepted"
         entry.status = "accepted"
         db.session.commit()
-        return f"Student ID {student_id} has been accepted by {internship.employer.username}."
+        return entry.status
     except SQLAlchemyError as e:
         db.session.rollback()
         return f"Error accepting student: {e}"
@@ -126,7 +125,7 @@ def reject_student(employer_id: int, internship_id: int, student_id: int) -> str
         # Update the status to "rejected"
         entry.status = "rejected"
         db.session.commit()
-        return f"Student ID {student_id} has been rejected by {internship.employer.username}."
+        return entry.status
     except SQLAlchemyError as e:
         db.session.rollback()
         return f"Error rejecting student: {e}"

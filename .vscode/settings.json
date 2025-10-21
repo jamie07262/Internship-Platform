@@ -1,4 +1,15 @@
 {
-    "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true,
+  "cSpell.words": [
+    "autouse",
+    "bobpass",
+    "jsonify",
+    "mimipass",
+    "resued",
+    "rickpass",
+    "studentpass",
+    "trudypass",
+    "warrenpass"
+  ]
 }

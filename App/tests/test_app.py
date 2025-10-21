@@ -170,8 +170,7 @@ class UsersIntegrationTests(unittest.TestCase):
                                                           "duration": 12,
                                                           "employer_id": 1,
                                                           "id": 1,
-                                                          "title": "Software Intern"}], 
-                                                          "total": 1})
+                                                          "title": "Software Intern"}]})
         
     def test_create_shortlist(self):
         employer = create_employer("warren","warrenpass","warren@mail.com","Microsoft")
@@ -195,8 +194,7 @@ class UsersIntegrationTests(unittest.TestCase):
                                                         "student_email": "TBD", 
                                                         "student_skills": "TBD", 
                                                         "student_skills": "TBD", 
-                                                        "status": "TBD"}], 
-                                                        "total": 1})
+                                                        "status": "TBD"}]})
         
     def test_create_shortlist_entry(self):
         employer = create_employer("warren","warrenpass","warren@mail.com","Microsoft")
@@ -222,8 +220,7 @@ class UsersIntegrationTests(unittest.TestCase):
                                                             "student_name": "Jane Doe", 
                                                             "student_email": "student@mail.com",
                                                             "student_skills": "Coding Design", 
-                                                            "status": "pending"}], 
-                                                            "total": 1})
+                                                            "status": "pending"}]})
         
     def test_view_shortlist(self):
         employer = create_employer("warren","warrenpass","warren@mail.com","Microsoft")
@@ -243,8 +240,7 @@ class UsersIntegrationTests(unittest.TestCase):
                                                             "student_name": "Jane Doe", 
                                                             "student_email": "student@mail.com", 
                                                             "student_skills": "Coding Design", 
-                                                            "status": "pending"}], 
-                                                            "total": 1})
+                                                            "status": "pending"}]})
         
     def test_accept_student(self):
         employer = create_employer("warren","warrenpass","warren@mail.com","Microsoft")
@@ -253,7 +249,7 @@ class UsersIntegrationTests(unittest.TestCase):
         shortlist = create_shortlist(staff.id, internship.id)
         student = create_student("student", "studentpass","student@mail.com", "Jane", "Doe", "Coding Design")
         shortlist_entry = add_student_to_shortlist(staff.id, shortlist.id, student.id)
-        assert accept_student(employer.id, internship.id, student.id) == f"Student ID {student.id} has been accepted by {internship.employer.username}."
+        assert accept_student(employer.id, internship.id, student.id) == "accepted"
 
     def test_reject_student(self):
         employer = create_employer("warren","warrenpass","warren@mail.com","Microsoft")
@@ -262,4 +258,4 @@ class UsersIntegrationTests(unittest.TestCase):
         shortlist = create_shortlist(staff.id, internship.id)
         student = create_student("student", "studentpass","student@mail.com", "Jane", "Doe", "Coding Design")
         shortlist_entry = add_student_to_shortlist(staff.id, shortlist.id, student.id)
-        assert reject_student(employer.id, internship.id, student.id) == f"Student ID {student.id} has been rejected by {internship.employer.username}."
+        assert reject_student(employer.id, internship.id, student.id) == "rejected"

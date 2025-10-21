@@ -80,41 +80,42 @@ def setup_jwt(app):
         return User.query.get(identity)
 
     return jwt
-# def setup_jwt(app):
-#   jwt = JWTManager(app)
 
-#   # Always store a string user id in the JWT identity (sub),
-#   # whether a User object or a raw id is passed.
-#   @jwt.user_identity_loader
-#   def user_identity_lookup(identity):
-#     user_id = getattr(identity, "id", identity)
-#     return str(user_id) if user_id is not None else None
+def setup_jwt(app):
+  jwt = JWTManager(app)
 
-#   @jwt.user_lookup_loader
-#   def user_lookup_callback(_jwt_header, jwt_data):
-#     identity = jwt_data["sub"]
-#     # Cast back to int primary key
-#     try:
-#       user_id = int(identity)
-#     except (TypeError, ValueError):
-#       return None
-#     return db.session.get(User, user_id)
+  # Always store a string user id in the JWT identity (sub),
+  # whether a User object or a raw id is passed.
+  @jwt.user_identity_loader
+  def user_identity_lookup(identity):
+    user_id = getattr(identity, "id", identity)
+    return str(user_id) if user_id is not None else None
 
-#   return jwt
+  @jwt.user_lookup_loader
+  def user_lookup_callback(_jwt_header, jwt_data):
+    identity = jwt_data["sub"]
+    # Cast back to int primary key
+    try:
+      user_id = int(identity)
+    except (TypeError, ValueError):
+      return None
+    return db.session.get(User, user_id)
+
+  return jwt
 
 
-# # Context processor to make 'is_authenticated' available to all templates
-# def add_auth_context(app):
-#   @app.context_processor
-#   def inject_user():
-#       try:
-#           verify_jwt_in_request()
-#           identity = get_jwt_identity()
-#           user_id = int(identity) if identity is not None else None
-#           current_user = db.session.get(User, user_id) if user_id is not None else None
-#           is_authenticated = current_user is not None
-#       except Exception as e:
-#           print(e)
-#           is_authenticated = False
-#           current_user = None
-#       return dict(is_authenticated=is_authenticated, current_user=current_user)
+# Context processor to make 'is_authenticated' available to all templates
+def add_auth_context(app):
+  @app.context_processor
+  def inject_user():
+      try:
+          verify_jwt_in_request()
+          identity = get_jwt_identity()
+          user_id = int(identity) if identity is not None else None
+          current_user = db.session.get(User, user_id) if user_id is not None else None
+          is_authenticated = current_user is not None
+      except Exception as e:
+          print(e)
+          is_authenticated = False
+          current_user = None
+      return dict(is_authenticated=is_authenticated, current_user=current_user)
