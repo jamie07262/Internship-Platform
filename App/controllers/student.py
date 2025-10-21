@@ -42,8 +42,8 @@ def view_my_shortlists(student_id: int) -> dict:
             
             shortlists_data.append({
                 "company_name": company_name if employer else "N/A",
-                "internship_title": internship_title,
                 "internship_id": internship_id,
+                "internship_title": internship_title,
                 "student_id": student.id if student else None,
                 "student_name": f"{student.firstName} {student.lastName}" if student else "N/A",
                 "student_email": student.email if student else "N/A",
@@ -53,8 +53,7 @@ def view_my_shortlists(student_id: int) -> dict:
         
         return {
             "student_id": student_id,
-            "shortlists": shortlists_data,
-            "total": len(shortlists_data)
+            "shortlists": shortlists_data
         }
     except SQLAlchemyError as e:
         return {"error": f"Database error: {str(e)}"}

@@ -69,7 +69,7 @@ def show_help():
 staff_cli = AppGroup('staff', help='Staff object commands')
 @staff_cli.command("create", help="Creates a staff member")
 @click.argument("username", default="bob")
-@click.argument("password", default="bobpass`")
+@click.argument("password", default="bobpass")
 @click.argument("email", default="bob@staff.com")
 def create_staff_command(username, password, email):
     result = create_staff(username, password, email)
@@ -90,7 +90,6 @@ def view_internships_command(staff_id):
         print("All Internship Positions:")
         for internship in result.get('internships', []):
             print(f"ID: {internship['id']}, Title: {internship['title']}, Company: {internship['company_name']}, Duration: {internship['duration']} months")
-        print(f"Total: {result.get('total', 0)} internships")
     print("\nNext: As staff, create a shortlist for an internship with:")
     print("  flask staff create-shortlist <staff_id> <internship_id>")
     print("---------------------------------------------------------------------------")
@@ -102,10 +101,10 @@ def create_shortlist_command(staff_id, internship_id):
     result = create_shortlist(staff_id, internship_id)
     print("---------------------------------------------------------------------------")
     print(result)
-    print("\nNext: As staff, search for students by skill with:")
-    print("  flask staff search-students <skill_keyword>")
+    print("\nNext: As staff, add a student to a shortlist with:")
+    print("  flask staff add-student <staff_id> <shortlist_id> <student_id>")
     print("Or view all students with:")
-    print("  flask staff list-students")
+    print("  flask staff list-students <staff_id>")
     print("---------------------------------------------------------------------------")
 
 @staff_cli.command("list-students", help="List all students")
@@ -119,7 +118,6 @@ def list_students_command(staff_id):
         print("All Students:")
         for student in result.get('students', []):
             print(f"ID: {student['id']}, Name: {student['firstName']} {student['lastName']}, Email: {student['email']}, Skills: {student['skills']}")
-        print(f"Total: {result.get('total', 0)} students")
     print("\nNext: As staff, add a student to a shortlist with:")
     print("  flask staff add-student <staff_id> <shortlist_id> <student_id>")
     print("---------------------------------------------------------------------------")
@@ -150,7 +148,6 @@ def view_shortlist_command(staff_id):
         print("All Shortlists:")
         for shortlist in result.get('shortlists', []):
             print(f"ID: {shortlist['shortlist_id']}, Internship: {shortlist['internship_title']}, Company: {shortlist['company_name']}")
-        print(f"Total: {result.get('total', 0)} shortlists")
     print("---------------------------------------------------------------------------")
 
 
@@ -164,8 +161,9 @@ employer_cli = AppGroup('employer', help='Employer object commands')
 def create_employer_command(username, password, email, companyname):
     result = create_employer(username, password, email, companyname)
     print("---------------------------------------------------------------------------")
-    print("\nNext: Create a student with:")
-    print("  flask student create <firstname> <lastname> <username> <password> <email> <skills>")
+    print(result)
+    print("\nNext: Create an internship for this employer with:")
+    print("  flask internship create <employer_id> <title> <description> <duration>")
     print("---------------------------------------------------------------------------")
 
 @employer_cli.command("view-shortlist", help="View all shortlists for an employer")
@@ -210,7 +208,6 @@ def view_shortlist_command(employer_id):
             else:
                 print("  - No students in this shortlist")
         
-        print(f"Total entries: {result.get('total', 0)}")
     print("\nNext: As employer, accept or reject a student with:")
     print("  flask employer accept-student <employer_id> <internship_id> <student_id>")
     print("  flask employer reject-student <employer_id> <internship_id> <student_id>")
@@ -253,7 +250,7 @@ def create_internship_command(employer_id, title, description, duration):
     print("---------------------------------------------------------------------------")
     print(result)
     print("\nNext: As staff, view all internship positions with:")
-    print("flask staff view-internships")
+    print("  flask staff view-internships <staff_id>")
     print("---------------------------------------------------------------------------")
    
 
@@ -270,8 +267,8 @@ def create_student_command(username, password, email, firstname, lastname, skill
     result = create_student(username, password, email, firstname, lastname, skills)
     print("---------------------------------------------------------------------------")
     print(result)
-    print("\nNext: Create an internship for this employer with:")
-    print("  flask internship create <employer_id> <title> <description> <duration>")
+    print("\nNext: As staff, add student to shortlists with:")
+    print("  flask staff add-student <staff_id> <shortlist_id> <student_id>")
     print("---------------------------------------------------------------------------")
 
 @student_cli.command("view-my-shortlist", help="View my shortlists")
@@ -285,7 +282,6 @@ def view_my_shortlist_command(student_id):
         print(f"Shortlists for Student {result.get('student_id', 'N/A')}:")
         for shortlist in result.get('shortlists', []):
             print(f"Internship: {shortlist['internship_title']}, Company: {shortlist['company_name']}, Status: {shortlist['status']}")
-        print(f"Total shortlists: {result.get('total', 0)}")
     print("---------------------------------------------------------------------------")
 
 app.cli.add_command(staff_cli)

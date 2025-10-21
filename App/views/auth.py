@@ -9,7 +9,7 @@ auth_views = Blueprint('auth_views', __name__, template_folder='../templates')
 
 
 @auth_views.route('/login', methods=['POST'])
-def login_action():
+def login_user():
     data = request.json
 
     if not data or not data.get('username') or not data.get('password'):
@@ -26,9 +26,9 @@ def login_action():
 def identify():
     try:
         claims = get_jwt()
-        user_id = get_jwt_identity()  # Now gets just the user ID
-        username = claims.get('username')  # From additional_claims
-        user_type = claims.get('user_type', 'unknown')  # From additional_claims
+        user_id = get_jwt_identity()  
+        username = claims.get('username')  
+        user_type = claims.get('user_type', 'unknown') 
         
         return jsonify({
             'user_id': user_id,
