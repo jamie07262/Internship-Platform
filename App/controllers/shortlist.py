@@ -18,7 +18,7 @@ def create_shortlist(staff_id: int, internship_id: int):
             db.select(Shortlist).filter_by(internship_id=internship_id)
         ).scalar_one_or_none()
         if existing:
-            return f"A shortlist for Internship ID {internship_id} already exists."
+            return f"duplicate shortlist"
 
         shortlist = Shortlist(staff_id=staff_id, internship_id=internship_id)
         db.session.add(shortlist)

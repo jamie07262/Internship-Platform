@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
-from App.controllers import create_shortlist, is_staff
+from App.controllers import create_shortlist, internship, is_staff
 from App.models.shortlist import Shortlist
 
 shortlist_views = Blueprint('shortlist_views', __name__, template_folder='../templates')
@@ -24,6 +24,8 @@ def create_shortlist_route():
     result = create_shortlist(staff_id, internship_id)
     
     if not isinstance(result, Shortlist):
-        return jsonify({"error": result}), 400
-    
+        if str(result) == "duplicate shortlist":
+            return jsonify({"error": "Duplicate shortlist"}), 500
+        else:
+            return jsonify({"error": result}), 400
     return jsonify({"message": "shortlist created"}), 201

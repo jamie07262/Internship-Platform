@@ -41,8 +41,7 @@ def identify():
 
 @auth_views.route('/logout', methods=['GET'])
 def logout_action():
-    response = redirect(request.referrer) 
-    flash("Logged Out!")
+    response = jsonify({"message": "Logged out successfully"})
     unset_jwt_cookies(response)
     return response
 
