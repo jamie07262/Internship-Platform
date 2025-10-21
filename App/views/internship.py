@@ -20,7 +20,7 @@ def create_internship():
     title = data.get('title')
     description = data.get('description')
     duration = data.get('duration')
-    
+
     if not all([title and title.strip(), description and description.strip(), duration]):
         return jsonify({"error": "title, description, and duration are required and cannot be empty"}), 400
     
@@ -37,4 +37,7 @@ def create_internship():
         else:
             return jsonify({"error": internship}), 400
     
-    return jsonify({"message": "internship created"}), 201
+    return jsonify({
+        "message": "internship created",
+        "internship_id": internship.id
+    }), 201

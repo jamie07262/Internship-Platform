@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, jsonify, request, flash, send_from_directory, flash, redirect, url_for
-from flask_jwt_extended import jwt_required, current_user, unset_jwt_cookies, set_access_cookies, get_jwt_identity, get_jwt
+from flask_jwt_extended import jwt_required, decode_token, current_user, unset_jwt_cookies, set_access_cookies, get_jwt_identity, get_jwt
 
 from.index import index_views
 
@@ -19,7 +19,17 @@ def login_user():
     if not token:
         return jsonify(error='Invalid credentials'), 401
     
-    return jsonify(access_token=token), 200 
+    decoded_token = decode_token(token)
+    user_id = decoded_token['sub']
+    username = decoded_token.get('username')
+    user_type = decoded_token.get('user_type')
+    
+    return jsonify(
+        access_token=token,
+        user_id=user_id,
+        username=username,
+        user_type=user_type
+    ), 200
 
 @auth_views.route('/identify', methods=['GET'])
 @jwt_required()
