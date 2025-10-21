@@ -19,7 +19,7 @@ def create_shortlist_route():
     internship_id = data.get('internship_id')
     
     if not internship_id:
-        return jsonify({"error": "internship_id is required"}), 400
+        return jsonify({"error": "correct internship_id is required"}), 400
     
     result = create_shortlist(staff_id, internship_id)
     
