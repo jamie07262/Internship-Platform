@@ -6,7 +6,7 @@ shortlistEntry_views = Blueprint('shortlistEntry_views', __name__, template_fold
 
 @shortlistEntry_views.route('/shortlists/<shortlist_id>/students', methods=['POST'])
 @jwt_required()
-def add_student_to_shortlist(shortlist_id):
+def add_student_to_shortlist_view(shortlist_id):
     staff_id = get_jwt_identity()
     
     if not is_staff(staff_id):
