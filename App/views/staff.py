@@ -58,7 +58,7 @@ def get_students(staff_id):
     return jsonify(result), 200
 
 
-@staff_views.route('/<staff_id>/shortlists', methods=['GET'])
+@staff_views.route('/staff/<staff_id>/shortlists', methods=['GET'])
 @jwt_required()
 def get_shortlists(staff_id):
     authenticated_staff_id = get_jwt_identity()

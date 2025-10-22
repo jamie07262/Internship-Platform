@@ -35,9 +35,9 @@ def create_employer_route():
     return jsonify({"message": "account created", "employer_id": employer.id}), 201
 
 
-@employer_views.route('/<employer_id>/shortlists', methods=['GET'])
+@employer_views.route('/emp/<employer_id>/shortlists', methods=['GET'])
 @jwt_required()
-def get_shortlists(employer_id):
+def emp_get_shortlists(employer_id):
     
     authenticated_employer_id = get_jwt_identity()
 

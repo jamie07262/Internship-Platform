@@ -2,7 +2,7 @@ from App.models import User
 from App.database import db
 from rich.table import Table
 
-def create_user(username, password, email, firstName=None, lastName=None):
+def create_user(username, password, email, firstName, lastName):
     newuser = User(username=username, password=password, email=email, firstName=firstName, lastName=lastName)
     db.session.add(newuser)
     db.session.commit()

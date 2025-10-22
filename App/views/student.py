@@ -27,7 +27,7 @@ def create_student_route():
     return jsonify({"message": "account created", "student_id": student.id}), 201
 
 
-@student_views.route('/<student_id>/shortlists', methods=['GET'])
+@student_views.route('/student/<student_id>/shortlists', methods=['GET'])
 @jwt_required()
 def get_shortlists(student_id):
     authenticated_student_id = get_jwt_identity()
