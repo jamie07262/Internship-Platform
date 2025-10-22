@@ -74,8 +74,8 @@ def accept_student(employer_id: int, internship_id: int, student_id: int) -> str
         internship = db.session.get(Internship, internship_id)
         if not internship:
             return f"Internship not found for ID {internship_id}."
-        if internship.employer_id != employer_id:
-            return f"Employer ID {employer_id} is not authorized to manage internship ID {internship_id}."
+        if int(internship.employer_id) != int(employer_id):
+            return f"Employer ID {employer_id} and {internship.employer_id} are not equal is not authorized to manage internship ID {internship_id}."
         
         shortlist = db.session.execute(
             db.select(Shortlist).filter_by(internship_id=internship_id)
@@ -105,7 +105,7 @@ def reject_student(employer_id: int, internship_id: int, student_id: int) -> str
         internship = db.session.get(Internship, internship_id)
         if not internship:
             return f"Internship not found for ID {internship_id}."
-        if internship.employer_id != employer_id:
+        if int(internship.employer_id) != int(employer_id):
             return f"Employer ID {employer_id} is not authorized to manage internship ID {internship_id}."
         
         shortlist = db.session.execute(
