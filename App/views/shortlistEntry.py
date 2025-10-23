@@ -10,7 +10,7 @@ def add_student_to_shortlist_view(shortlist_id):
     staff_id = get_jwt_identity()
     
     if not is_staff(staff_id):
-        return jsonify({"error": "Access denied - staff credentials required"}), 403
+        return jsonify({"error": "Access denied - staff credentials required"}), 401
     
     student_id = request.json.get('student_id')
     

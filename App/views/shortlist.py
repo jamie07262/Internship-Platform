@@ -22,10 +22,12 @@ def create_shortlist_route():
         return jsonify({"error": "correct internship_id is required"}), 400
     
     result = create_shortlist(staff_id, internship_id)
+    shortlist_id = result.id
     
     if not isinstance(result, Shortlist):
         if str(result) == "duplicate shortlist":
             return jsonify({"error": "Duplicate shortlist"}), 500
         else:
             return jsonify({"error": result}), 400
-    return jsonify({"message": "shortlist created"}), 201
+  
+    return jsonify({"message": f"shortlist created with ID {shortlist_id}", "shortlist_id": shortlist_id}), 201
