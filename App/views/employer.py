@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, current_user as get_jwt
+from flask_jwt_extended import jwt_required
 
 from App.controllers import (
     is_employer,
@@ -10,10 +10,7 @@ from App.controllers import (
     reject_student,
     get_jwt_identity
 )
-from App.models.employer import Employer
-
 employer_views = Blueprint('employer_views', __name__, template_folder='../templates')
-
 
 @employer_views.route('/employer', methods=['POST'])
 def create_employer_route():
@@ -29,10 +26,9 @@ def create_employer_route():
         companyName=data['companyName']
     )
     
-    if not isinstance(employer, Employer):
-        return jsonify({"error": employer}), 400
-
-    return jsonify({"message": "account created", "employer_id": employer.id}), 201
+    if employer is None:
+        return jsonify({"error": "Failed to create employer"}), 400
+    return jsonify({"message": "Employer account created", "employer_id": employer.id}), 201
 
 
 @employer_views.route('/emp/<employer_id>/shortlists', methods=['GET'])
@@ -43,14 +39,14 @@ def emp_get_shortlists(employer_id):
 
     if not is_employer(authenticated_employer_id):
         return jsonify({"error": "Access denied - employer authorization required"}), 401
-    
-    if authenticated_employer_id != employer_id:
-        return jsonify({"error": "Access denied - can only view your own shortlists"}), 401
-    
-    result = view_shortlist(employer_id)
 
-    if "error" in result:
-        return jsonify(result), 404
+    if str(authenticated_employer_id) != str(employer_id):
+        return jsonify({"error": "Access denied - can only view your own shortlists"}), 401
+
+    result = view_shortlist(int(employer_id))
+    
+    if result is None:
+        return jsonify({"error": "Employer not found or database error"}), 404
     return jsonify(result), 200
 
 
@@ -64,9 +60,9 @@ def accept_student_route(internship_id, student_id):
     
     result = accept_student(employer_id, internship_id, student_id)
 
-    if result == "accepted":
-        return jsonify({"message": f"Student ID {student_id} has been accepted by employer ID {employer_id}."}), 200
-    return jsonify({"error": "Failed to accept student"}), 400
+    if result:
+        return jsonify({"message": f"Student ID {student_id} has been accepted"}), 200
+    return jsonify({"error": "Failed to accept student - invalid IDs or student not in shortlist"}), 400
 
 
 @employer_views.route('/internships/<internship_id>/reject/<student_id>', methods=['PUT'])
@@ -78,7 +74,7 @@ def reject_student_route(internship_id, student_id):
         return jsonify({"error": "Access denied - employer authorization required"}), 401
     
     result = reject_student(employer_id, internship_id, student_id)
-       
-    if result == "rejected":
-        return jsonify({"message": f"Student ID {student_id} has been rejected by employer ID {employer_id}"}), 200
-    return jsonify({"error": "Failed to reject student"}), 400
+
+    if result:
+        return jsonify({"message": f"Student ID {student_id} has been rejected"}), 200
+    return jsonify({"error": "Failed to reject student - invalid IDs or student not in shortlist"}), 400

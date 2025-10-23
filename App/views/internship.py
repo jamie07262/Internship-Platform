@@ -1,8 +1,7 @@
-from flask import Blueprint, render_template, jsonify, request, send_from_directory, flash, redirect, url_for
-from flask_jwt_extended import get_jwt_identity, jwt_required, current_user as jwt_current_user, get_jwt
+from flask import Blueprint,jsonify, request
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
-from.index import index_views
-from App.models import db, Internship
+from App.models import Internship
 from App.controllers import (create_internship_position, is_employer)
 
 internship_views = Blueprint('internship_views', __name__, template_folder='../templates')
@@ -32,12 +31,12 @@ def create_internship():
     )
     
     if not isinstance(internship, Internship):
-        if str(internship) == "duplicate internship":
+        if "exists" in str(internship).lower():
             return jsonify({"error": "Duplicate internship: You cannot create an internship with the same title, description, and duration"}), 500
         else:
-            return jsonify({"error": internship}), 400
-    
+            return jsonify({"error": internship}), 400       
+
     return jsonify({
-        "message": "internship created",
+        "message": f"Internship created by employer ID {employer_id}",
         "internship_id": internship.id
     }), 201

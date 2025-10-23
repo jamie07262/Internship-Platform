@@ -19,10 +19,11 @@ class Internship(db.Model):
     def get_json(self):
         return {
             'id': self.id,
-            'employer_id': self.employer_id,
-            'title': self.title,
+            'company_name': self.employer.companyName if self.employer else "Unknown",
             'description': self.description,
-            'duration': self.duration
+            'duration': self.duration,
+            'employer_id': self.employer_id,
+            'title': self.title
         }
     
     def __repr__(self):

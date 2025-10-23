@@ -8,11 +8,11 @@ def create_user(username, password, email, firstName, lastName):
     db.session.commit()
     return newuser
 
-def get_user_by_username(username): #uncommented
+def get_user_by_username(username): 
     result = db.session.execute(db.select(User).filter_by(username=username))
     return result.scalar_one_or_none()
 
-def get_user(id): #uncommented
+def get_user(id):
     return db.session.get(User, id)
 
 def get_all_users():
@@ -25,7 +25,7 @@ def get_all_users_json():
     users = [user.get_json() for user in users]
     return users
 
-def update_user(id, username): #uncommented
+def update_user(id, username):
     user = get_user(id)
     if user:
         user.username = username
@@ -34,7 +34,7 @@ def update_user(id, username): #uncommented
         return True
     return None
 
-def list_users(): # uncommennted
+def list_users():
     users = get_all_users()
     table = Table(title="All Users")
     table.add_column("ID", style="cyan")
