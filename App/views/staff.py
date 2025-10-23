@@ -46,7 +46,7 @@ def get_students(staff_id):
     authenticated_staff_id = get_jwt_identity()
     
     if not is_staff(authenticated_staff_id):
-        return jsonify({"error": "Access denied - staff authorization required"}), 403
+        return jsonify({"error": "Access denied - staff authorization required"}), 401
     
     result = list_students(staff_id)
     if result is None:
@@ -60,7 +60,7 @@ def get_shortlists(staff_id):
     authenticated_staff_id = get_jwt_identity()
     
     if not is_staff(authenticated_staff_id):
-        return jsonify({"error": "Access denied - staff authorization required"}), 403
+        return jsonify({"error": "Access denied - staff authorization required"}), 401
     
     result = view_shortlists(staff_id)
     if result is None:
