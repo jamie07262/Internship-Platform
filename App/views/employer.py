@@ -42,10 +42,10 @@ def emp_get_shortlists(employer_id):
     authenticated_employer_id = get_jwt_identity()
 
     if not is_employer(authenticated_employer_id):
-        return jsonify({"error": "Access denied - employer authorization required"}), 403
+        return jsonify({"error": "Access denied - employer authorization required"}), 401
     
     if authenticated_employer_id != employer_id:
-        return jsonify({"error": "Access denied - can only view your own shortlists"}), 403
+        return jsonify({"error": "Access denied - can only view your own shortlists"}), 401
     
     result = view_shortlist(employer_id)
 
@@ -60,10 +60,10 @@ def accept_student_route(internship_id, student_id):
     employer_id = get_jwt_identity()
     
     if not is_employer(employer_id):
-        return jsonify({"error": "Access denied - employer authorization required"}), 403
+        return jsonify({"error": "Access denied - employer authorization required"}), 401
     
     result = accept_student(employer_id, internship_id, student_id)
-    
+
     if result == "accepted":
         return jsonify({"message": f"Student ID {student_id} has been accepted by employer ID {employer_id}."}), 200
     return jsonify({"error": "Failed to accept student"}), 400
@@ -75,7 +75,7 @@ def reject_student_route(internship_id, student_id):
     employer_id = get_jwt_identity()
     
     if not is_employer(employer_id):
-        return jsonify({"error": "Access denied - employer authorization required"}), 403
+        return jsonify({"error": "Access denied - employer authorization required"}), 401
     
     result = reject_student(employer_id, internship_id, student_id)
        

@@ -33,11 +33,11 @@ def get_shortlists(student_id):
     authenticated_student_id = get_jwt_identity()
     
     if not is_student(authenticated_student_id):
-        return jsonify({"error": "Access denied - student credentials required"}), 403
+        return jsonify({"error": "Access denied - student credentials required"}), 401
     
     # Verify student can only access their own shortlists
     if authenticated_student_id != student_id:
-        return jsonify({"error": "Access denied - can only view your own shortlists"}), 403
+        return jsonify({"error": "Access denied - can only view your own shortlists"}), 401
     
     result = view_my_shortlists(student_id)
 
