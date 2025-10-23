@@ -1,11 +1,10 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from App.controllers import create_shortlist, internship, is_staff
+from App.controllers import create_shortlist, is_staff
 from App.models.shortlist import Shortlist
 
 shortlist_views = Blueprint('shortlist_views', __name__, template_folder='../templates')
-
 
 @shortlist_views.route('/shortlists', methods=['POST'])
 @jwt_required()
@@ -22,12 +21,11 @@ def create_shortlist_route():
         return jsonify({"error": "correct internship_id is required"}), 400
     
     result = create_shortlist(staff_id, internship_id)
-    shortlist_id = result.id
     
     if not isinstance(result, Shortlist):
-        if str(result) == "duplicate shortlist":
-            return jsonify({"error": "Duplicate shortlist"}), 500
+        if "duplicate" in str(result).lower():
+            return jsonify({"error": "Duplicate shortlist created"}), 500
         else:
             return jsonify({"error": result}), 400
-  
-    return jsonify({"message": f"shortlist created with ID {shortlist_id}", "shortlist_id": shortlist_id}), 201
+
+    return jsonify({"message": f"Shortlist created by staff ID {staff_id}", "shortlist_id": result.id}), 201

@@ -65,23 +65,6 @@ def logout(response):
     return response
 
 def setup_jwt(app):
-    jwt = JWTManager(app)
-
-    @jwt.user_identity_loader
-    def user_identity_lookup(identity):
-        user = User.query.filter_by(username=identity).one_or_none()
-        if user:
-            return user.id
-        return None
-
-    @jwt.user_lookup_loader
-    def user_lookup_callback(_jwt_header, jwt_data):
-        identity = jwt_data["sub"]
-        return User.query.get(identity)
-
-    return jwt
-
-def setup_jwt(app):
   jwt = JWTManager(app)
 
   # Always store a string user id in the JWT identity (sub),

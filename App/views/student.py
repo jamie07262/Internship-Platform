@@ -1,7 +1,6 @@
 from unittest import result
-from flask import Blueprint, render_template, jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
-from App.models.student import Student
+from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from App.controllers import ( get_user_by_username, is_student, create_student, view_my_shortlists)
 
 student_views = Blueprint('student_views', __name__, template_folder='../templates')
@@ -21,10 +20,10 @@ def create_student_route():
         lastName=data['lastName'],
         skills=data['skills']
     )
-    if not isinstance(student, Student):
-        return jsonify({"error": student}), 400
 
-    return jsonify({"message": "account created", "student_id": student.id}), 201
+    if student is None:
+        return jsonify({"error": "Failed to create student"}), 400
+    return jsonify({"message": "Student account created", "student_id": student.id}), 201
 
 
 @student_views.route('/student/<student_id>/shortlists', methods=['GET'])
@@ -36,11 +35,11 @@ def get_shortlists(student_id):
         return jsonify({"error": "Access denied - student credentials required"}), 401
     
     # Verify student can only access their own shortlists
-    if authenticated_student_id != student_id:
+    if str(authenticated_student_id) != str(student_id):
         return jsonify({"error": "Access denied - can only view your own shortlists"}), 401
     
     result = view_my_shortlists(student_id)
 
-    if "error" in result:
-        return jsonify(result), 404
+    if result is None:
+        return jsonify({"error": "Student not found or database error"}), 404
     return jsonify(result), 200
