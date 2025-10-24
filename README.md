@@ -2,6 +2,24 @@
 
 An app for staff to shortlist students to internship opportunities created by employers who can accept or reject student.
 
+## Postman Collection Screenshots
+This section is followed by instructions on how to use the CLI of the application
+
+![postman1](images/postman1.png)
+![postman2](images/postman2.png)
+![postman3](images/postman3.png)
+![postman4](images/postman4.png)
+![postman5](images/postman5.png)
+![postman6](images/postman6.png)
+![postman7](images/postman7.png)
+![postman8](images/postman8.png)
+![postman9](images/postman9.png)
+![postman10](images/postman10.png)
+
+## Demonstration
+
+https://github.com/user-attachments/assets/f3705681-911b-46ef-af02-45a7a14afd42
+
 ## Core Functionality
 
 1. **(Employer)** Create internship positions
