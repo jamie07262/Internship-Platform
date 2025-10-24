@@ -1893,13 +1893,6 @@
 								"packages": {},
 								"requests": {}
 							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"packages": {},
-								"type": "text/javascript"
-							}
 						}
 					],
 					"request": {
