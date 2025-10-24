@@ -47,7 +47,7 @@ def view_shortlist(employer_id: int):
     except SQLAlchemyError as e:
         return f"Error viewing shortlist: {e}"
 
-def accept_student(employer_id: int, internship_id: int, student_id: int) -> str:
+def accept_student(employer_id: int, internship_id: int, student_id: int) -> bool:
     try:
         # Get the internship and verify employer 
         internship = Internship.query.get(internship_id)
