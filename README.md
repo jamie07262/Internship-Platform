@@ -142,3 +142,17 @@ flask student view-my-shortlist 1
 ```bash
 $ pip install -r requirements.txt
 ```
+
+# Running Unit and Integration test
+
+```bash
+pytest App/tests
+```
+
+#Running Postman API Tests with Newman
+
+Make sure your API server is running, then run:
+
+```bash
+newman run "Internship Platform API.postman_collection.json" -e "Internship Platform- Local.postman_environment.json"
+```
