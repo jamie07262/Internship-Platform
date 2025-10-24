@@ -3,8 +3,8 @@
 		"_postman_id": "a3185dfb-5dc8-4d07-b969-79d9d029b7e1",
 		"name": "Internship Platform API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "49447105",
-		"_collection_link": "https://www.postman.com/royal-byte-coders/workspace/royal-byte-coders-workspace/collection/42003085-a3185dfb-5dc8-4d07-b969-79d9d029b7e1?action=share&source=collection_link&creator=49447105"
+		"_exporter_id": "42003085",
+		"_collection_link": "https://www.postman.com/royal-byte-coders/workspace/royal-byte-coders-workspace/collection/42003085-a3185dfb-5dc8-4d07-b969-79d9d029b7e1?action=share&source=collection_link&creator=42003085"
 	},
 	"item": [
 		{
@@ -1495,11 +1495,12 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/{{staff_id}}/internships",
+							"raw": "{{base_url}}/staff/{{staff_id}}/internships",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
+								"staff",
 								"{{staff_id}}",
 								"internships"
 							]
@@ -1511,17 +1512,6 @@
 					"name": "(Unauthorized) List Internships",
 					"event": [
 						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						},
-						{
 							"listen": "test",
 							"script": {
 								"exec": [
@@ -1531,8 +1521,19 @@
 									"\r",
 									"pm.test(\"Access denied error\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson.error).to.equal(\"Access denied - staff authorization required\");\r",
+									"    pm.expect(responseJson.error).to.include(\"Access denied\");\r",
 									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
 								],
 								"type": "text/javascript",
 								"packages": {},
@@ -1550,11 +1551,12 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/{{staff_id}}/internships",
+							"raw": "{{base_url}}/staff/{{staff_id}}/internships",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
+								"staff",
 								"{{staff_id}}",
 								"internships"
 							]
@@ -1589,15 +1591,15 @@
 									"  \"items\": {\r",
 									"    \"type\": \"object\",\r",
 									"    \"properties\": {\r",
+									"      \"id\": {\"type\": \"integer\"},\r",
+									"      \"username\": {\"type\": \"string\"},\r",
 									"      \"email\": {\"type\": \"string\"},\r",
 									"      \"firstName\": {\"type\": \"string\"},\r",
-									"      \"id\": {\"type\": \"integer\"},\r",
 									"      \"lastName\": {\"type\": \"string\"},\r",
 									"      \"skills\": {\"type\": \"string\"},\r",
-									"      \"type\": {\"type\": \"string\"},\r",
-									"      \"username\": {\"type\": \"string\"}\r",
+									"      \"type\": {\"type\": \"string\"}\r",
 									"    },\r",
-									"    \"required\": [\"email\", \"firstName\", \"id\", \"lastName\", \"skills\", \"type\", \"username\"]\r",
+									"    \"required\": [\"id\", \"username\",\"email\", \"firstName\", \"lastName\", \"skills\", \"type\"]\r",
 									"  }\r",
 									"}\r",
 									"\r",
@@ -1621,11 +1623,12 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/{{staff_id}}/students",
+							"raw": "{{base_url}}/staff/{{staff_id}}/students",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
+								"staff",
 								"{{staff_id}}",
 								"students"
 							]
@@ -1637,17 +1640,6 @@
 					"name": "(Unauthorized) List Students",
 					"event": [
 						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						},
-						{
 							"listen": "test",
 							"script": {
 								"exec": [
@@ -1657,8 +1649,19 @@
 									"\r",
 									"pm.test(\"Access denied error\", function () {\r",
 									"    const responseJson = pm.response.json();\r",
-									"    pm.expect(responseJson.error).to.equal(\"Access denied - staff authorization required\");\r",
+									"    pm.expect(responseJson.error).to.include(\"Access denied\");\r",
 									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
 								],
 								"type": "text/javascript",
 								"packages": {},
@@ -1676,11 +1679,12 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/{{staff_id}}/internships",
+							"raw": "{{base_url}}/staff/{{staff_id}}/internships",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
+								"staff",
 								"{{staff_id}}",
 								"internships"
 							]
@@ -1905,12 +1909,12 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/emp/{{employer_id}}/shortlists",
+							"raw": "{{base_url}}/employer/{{employer_id}}/shortlists",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
-								"emp",
+								"employer",
 								"{{employer_id}}",
 								"shortlists"
 							]
@@ -1950,12 +1954,12 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/emp/{{employer_id}}/shortlists",
+							"raw": "{{base_url}}/employer/{{employer_id}}/shortlists",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
-								"emp",
+								"employer",
 								"{{employer_id}}",
 								"shortlists"
 							]
@@ -2010,15 +2014,16 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/internships/{{internship_id}}/accept/{{student_id}}",
+							"raw": "{{base_url}}/internships/{{internship_id}}/students/{{student_id}}/accept",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"internships",
 								"{{internship_id}}",
-								"accept",
-								"{{student_id}}"
+								"students",
+								"{{student_id}}",
+								"accept"
 							]
 						}
 					},
@@ -2076,15 +2081,16 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/internships/{{internship_id}}/accept/{{student_id}}",
+							"raw": "{{base_url}}/internships/{{internship_id}}/students/{{student_id}}/accept",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"internships",
 								"{{internship_id}}",
-								"accept",
-								"{{student_id}}"
+								"students",
+								"{{student_id}}",
+								"accept"
 							]
 						}
 					},
@@ -2128,15 +2134,16 @@
 						"method": "PUT",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/internships/{{internship_id}}/reject/{{student_id}}",
+							"raw": "{{base_url}}/internships/{{internship_id}}/students/{{student_id}}/reject",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"internships",
 								"{{internship_id}}",
-								"reject",
-								"{{student_id}}"
+								"students",
+								"{{student_id}}",
+								"reject"
 							]
 						}
 					},
@@ -2194,15 +2201,16 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/internships/{{internship_id}}/reject/{{student_id}}",
+							"raw": "{{base_url}}/internships/{{internship_id}}/students/{{student_id}}/accept",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"internships",
 								"{{internship_id}}",
-								"reject",
-								"{{student_id}}"
+								"students",
+								"{{student_id}}",
+								"accept"
 							]
 						}
 					},

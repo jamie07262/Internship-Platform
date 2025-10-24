@@ -26,7 +26,7 @@ def create_staff_route():
     return jsonify({"message": "Staff account created", "staff_id": staff.id}), 201
 
 
-@staff_views.route('/<staff_id>/internships', methods=['GET'])
+@staff_views.route('/staff/<staff_id>/internships', methods=['GET'])
 @jwt_required()
 def get_internships(staff_id):
     authenticated_staff_id = get_jwt_identity()
@@ -34,19 +34,25 @@ def get_internships(staff_id):
     if not is_staff(authenticated_staff_id):
         return jsonify({"error": "Access denied - staff authorization required"}), 401
     
+    if str(authenticated_staff_id) != str(staff_id):
+        return jsonify({"error": "Access denied - can only view your own resources"}), 403
+
     result = view_internship_positions(staff_id)
     if result is None:
         return jsonify({"error": "Staff not found or database error"}), 404
     return jsonify(result), 200
 
 
-@staff_views.route('/<staff_id>/students', methods=['GET'])
+@staff_views.route('/staff/<staff_id>/students', methods=['GET'])
 @jwt_required()
 def get_students(staff_id):
     authenticated_staff_id = get_jwt_identity()
     
     if not is_staff(authenticated_staff_id):
         return jsonify({"error": "Access denied - staff authorization required"}), 401
+    
+    if str(authenticated_staff_id) != str(staff_id):
+        return jsonify({"error": "Access denied - can only view your own resources"}), 403
     
     result = list_students(staff_id)
     if result is None:
@@ -62,6 +68,9 @@ def get_shortlists(staff_id):
     if not is_staff(authenticated_staff_id):
         return jsonify({"error": "Access denied - staff authorization required"}), 401
     
+    if str(authenticated_staff_id) != str(staff_id):
+        return jsonify({"error": "Access denied - can only view your own resources"}), 403
+
     result = view_shortlists(staff_id)
     if result is None:
         return jsonify({"error": "Staff not found or database error"}), 404
