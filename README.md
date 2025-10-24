@@ -31,7 +31,6 @@ Staff members can manage students and create shortlists for internship positions
 | ---------------------------------------------------------------- | --------------------------------------------- | ---------------------------------------------- |
 | `flask staff create <username> <password> <email>`               | Create a new staff member                     | `flask staff create bob bobpass bob@staff.com` |
 | `flask staff list-students`                                      | List all students in the system               | `flask staff list-students`                    |
-| `flask staff search-students <skill_keyword>`                    | Search students by skill keyword              | `flask staff search-students Python`           |
 | `flask staff view-internships`                                   | View all available internship positions       | `flask staff view-internships`                 |
 | `flask staff create-shortlist <staff_id> <internship_id>`        | Create a shortlist for an internship          | `flask staff create-shortlist 1 1`             |
 | `flask staff add-student <staff_id> <shortlist_id> <student_id>` | Add a student to a shortlist                  | `flask staff add-student 1 1 1`                |
@@ -98,9 +97,6 @@ flask staff view-internships
 ```bash
 # Staff creates shortlists for internships
 flask staff create-shortlist 1 1
-
-# Staff searches for suitable students
-flask staff search-students Python
 
 # Staff adds students to shortlists
 flask staff add-student 1 1 1
