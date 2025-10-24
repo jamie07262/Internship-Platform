@@ -3,6 +3,7 @@
 An app for staff to shortlist students to internship opportunities created by employers who can accept or reject student.
 
 ## Postman Collection Screenshots
+
 This section is followed by instructions on how to use the CLI of the application
 
 ![postman1](images/postman1.png)
@@ -15,10 +16,6 @@ This section is followed by instructions on how to use the CLI of the applicatio
 ![postman8](images/postman8.png)
 ![postman9](images/postman9.png)
 ![postman10](images/postman10.png)
-
-## Demonstration
-
-https://github.com/user-attachments/assets/f3705681-911b-46ef-af02-45a7a14afd42
 
 ## Core Functionality
 
