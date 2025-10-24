@@ -31,7 +31,7 @@ def create_employer_route():
     return jsonify({"message": "Employer account created", "employer_id": employer.id}), 201
 
 
-@employer_views.route('/emp/<employer_id>/shortlists', methods=['GET'])
+@employer_views.route('/employer/<employer_id>/shortlists', methods=['GET'])
 @jwt_required()
 def emp_get_shortlists(employer_id):
     
@@ -50,7 +50,7 @@ def emp_get_shortlists(employer_id):
     return jsonify(result), 200
 
 
-@employer_views.route('/internships/<internship_id>/accept/<student_id>', methods=['PUT'])
+@employer_views.route('/internships/<internship_id>/students/<student_id>/accept', methods=['PUT'])
 @jwt_required()
 def accept_student_route(internship_id, student_id):
     employer_id = get_jwt_identity()
@@ -65,7 +65,7 @@ def accept_student_route(internship_id, student_id):
     return jsonify({"error": "Failed to accept student - invalid IDs or student not in shortlist"}), 400
 
 
-@employer_views.route('/internships/<internship_id>/reject/<student_id>', methods=['PUT'])
+@employer_views.route('/internships/<internship_id>/students/<student_id>/reject', methods=['PUT'])
 @jwt_required()
 def reject_student_route(internship_id, student_id):
     employer_id = get_jwt_identity()
