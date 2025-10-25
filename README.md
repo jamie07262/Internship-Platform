@@ -2,9 +2,20 @@
 
 An app for staff to shortlist students to internship opportunities created by employers who can accept or reject student.
 
-## Demonstration
+## Postman Collection Screenshots
 
-https://github.com/user-attachments/assets/f3705681-911b-46ef-af02-45a7a14afd42
+This section is followed by instructions on how to use the CLI of the application
+
+![postman1](images/postman1.png)
+![postman2](images/postman2.png)
+![postman3](images/postman3.png)
+![postman4](images/postman4.png)
+![postman5](images/postman5.png)
+![postman6](images/postman6.png)
+![postman7](images/postman7.png)
+![postman8](images/postman8.png)
+![postman9](images/postman9.png)
+![postman10](images/postman10.png)
 
 ## Core Functionality
 
@@ -31,7 +42,6 @@ Staff members can manage students and create shortlists for internship positions
 | ---------------------------------------------------------------- | --------------------------------------------- | ---------------------------------------------- |
 | `flask staff create <username> <password> <email>`               | Create a new staff member                     | `flask staff create bob bobpass bob@staff.com` |
 | `flask staff list-students`                                      | List all students in the system               | `flask staff list-students`                    |
-| `flask staff search-students <skill_keyword>`                    | Search students by skill keyword              | `flask staff search-students Python`           |
 | `flask staff view-internships`                                   | View all available internship positions       | `flask staff view-internships`                 |
 | `flask staff create-shortlist <staff_id> <internship_id>`        | Create a shortlist for an internship          | `flask staff create-shortlist 1 1`             |
 | `flask staff add-student <staff_id> <shortlist_id> <student_id>` | Add a student to a shortlist                  | `flask staff add-student 1 1 1`                |
@@ -99,9 +109,6 @@ flask staff view-internships
 # Staff creates shortlists for internships
 flask staff create-shortlist 1 1
 
-# Staff searches for suitable students
-flask staff search-students Python
-
 # Staff adds students to shortlists
 flask staff add-student 1 1 1
 ```
@@ -134,4 +141,18 @@ flask student view-my-shortlist 1
 
 ```bash
 $ pip install -r requirements.txt
+```
+
+# Running Unit and Integration test
+
+```bash
+pytest App/tests
+```
+
+#Running Postman API Tests with Newman
+
+Make sure your API server is running, then run:
+
+```bash
+newman run "Internship Platform API.postman_collection.json" -e "Internship Platform- Local.postman_environment.json"
 ```

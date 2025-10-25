@@ -69,7 +69,7 @@ def show_help():
 staff_cli = AppGroup('staff', help='Staff object commands')
 @staff_cli.command("create", help="Creates a staff member")
 @click.argument("username", default="bob")
-@click.argument("password", default="bobpass`")
+@click.argument("password", default="bobpass")
 @click.argument("email", default="bob@staff.com")
 def create_staff_command(username, password, email):
     result = create_staff(username, password, email)
@@ -84,13 +84,14 @@ def create_staff_command(username, password, email):
 def view_internships_command(staff_id):
     result = view_internship_positions(staff_id)
     print("---------------------------------------------------------------------------")
-    if "error" in result:
-        print(f"Error: {result['error']}")
+    if result is None:  
+        print("Error: Staff not found or database error")
+    elif not result:
+        print("No internship positions found")
     else:
         print("All Internship Positions:")
-        for internship in result.get('internships', []):
+        for internship in result:
             print(f"ID: {internship['id']}, Title: {internship['title']}, Company: {internship['company_name']}, Duration: {internship['duration']} months")
-        print(f"Total: {result.get('total', 0)} internships")
     print("\nNext: As staff, create a shortlist for an internship with:")
     print("  flask staff create-shortlist <staff_id> <internship_id>")
     print("---------------------------------------------------------------------------")
@@ -102,10 +103,10 @@ def create_shortlist_command(staff_id, internship_id):
     result = create_shortlist(staff_id, internship_id)
     print("---------------------------------------------------------------------------")
     print(result)
-    print("\nNext: As staff, search for students by skill with:")
-    print("  flask staff search-students <skill_keyword>")
+    print("\nNext: As staff, add a student to a shortlist with:")
+    print("  flask staff add-student <staff_id> <shortlist_id> <student_id>")
     print("Or view all students with:")
-    print("  flask staff list-students")
+    print("  flask staff list-students <staff_id>")
     print("---------------------------------------------------------------------------")
 
 @staff_cli.command("list-students", help="List all students")
@@ -113,13 +114,14 @@ def create_shortlist_command(staff_id, internship_id):
 def list_students_command(staff_id):
     result = list_students(staff_id)
     print("---------------------------------------------------------------------------")
-    if "error" in result:
-        print(f"Error: {result['error']}")
+    if result is None:  
+        print("Error: Staff not found or database error")
+    elif not result:  
+        print("No students found")
     else:
         print("All Students:")
-        for student in result.get('students', []):
+        for student in result:
             print(f"ID: {student['id']}, Name: {student['firstName']} {student['lastName']}, Email: {student['email']}, Skills: {student['skills']}")
-        print(f"Total: {result.get('total', 0)} students")
     print("\nNext: As staff, add a student to a shortlist with:")
     print("  flask staff add-student <staff_id> <shortlist_id> <student_id>")
     print("---------------------------------------------------------------------------")
@@ -144,13 +146,14 @@ def add_student_command(staff_id, shortlist_id, student_id):
 def view_shortlist_command(staff_id):
     result = staff_view_shortlists(staff_id)
     print("---------------------------------------------------------------------------")
-    if "error" in result:
-        print(f"Error: {result['error']}")
+    if result is None:  
+        print("Error: Staff not found or database error")
+    elif not result:  
+        print("No shortlists found")
     else:
         print("All Shortlists:")
-        for shortlist in result.get('shortlists', []):
+        for shortlist in result:
             print(f"ID: {shortlist['shortlist_id']}, Internship: {shortlist['internship_title']}, Company: {shortlist['company_name']}")
-        print(f"Total: {result.get('total', 0)} shortlists")
     print("---------------------------------------------------------------------------")
 
 
@@ -164,8 +167,9 @@ employer_cli = AppGroup('employer', help='Employer object commands')
 def create_employer_command(username, password, email, companyname):
     result = create_employer(username, password, email, companyname)
     print("---------------------------------------------------------------------------")
-    print("\nNext: Create a student with:")
-    print("  flask student create <firstname> <lastname> <username> <password> <email> <skills>")
+    print(result)
+    print("\nNext: Create an internship for this employer with:")
+    print("  flask internship create <employer_id> <title> <description> <duration>")
     print("---------------------------------------------------------------------------")
 
 @employer_cli.command("view-shortlist", help="View all shortlists for an employer")
@@ -173,44 +177,16 @@ def create_employer_command(username, password, email, companyname):
 def view_shortlist_command(employer_id):
     result = employer_view_shortlist(employer_id)
     print("---------------------------------------------------------------------------")
-    if "error" in result:
-        print(f"Error: {result['error']}")
+    if result is None:  
+        print("Error: Employer not found or database error")
+    elif not result:  
+        print("No shortlists found")
     else:
-        employer_info = result.get('employer', {})
-        print(f"Shortlists for Employer {employer_info.get('company_name', 'N/A')} (ID: {employer_info.get('id', 'N/A')}):")
-        
-        # Group entries by shortlist_id and internship
-        shortlist_groups = {}
-        for entry in result.get('shortlists', []):
-            shortlist_id = entry['shortlist_id']
-            internship_title = entry['internship_title']
-            key = f"{shortlist_id}_{internship_title}"
-            
-            if key not in shortlist_groups:
-                shortlist_groups[key] = {
-                    'shortlist_id': shortlist_id,
-                    'internship_title': internship_title,
-                    'students': []
-                }
-            
-            if entry['student_id'] != "No students":
-                shortlist_groups[key]['students'].append({
-                    'id': entry['student_id'],
-                    'name': entry['student_name'],
-                    'email': entry['student_email'],
-                    'skills': entry['student_skills'],
-                    'status': entry['status']
-                })
-        
-        for group in shortlist_groups.values():
-            print(f"Shortlist ID: {group['shortlist_id']}, Internship: {group['internship_title']}")
-            if group['students']:
-                for student in group['students']:
-                    print(f"  - Student: {student['name']} (ID: {student['id']}) - Status: {student['status']}")
-            else:
-                print("  - No students in this shortlist")
-        
-        print(f"Total entries: {result.get('total', 0)}")
+        print(f"Shortlists for Employer (ID: {employer_id}):")
+        for entry in result:
+            print(f"Shortlist ID: {entry['shortlist_id']}, Internship: {entry['internship_title']}")
+            print(f"  - Student: {entry['student_name']} (ID: {entry['student_id']}) - Status: {entry['status']}")
+    
     print("\nNext: As employer, accept or reject a student with:")
     print("  flask employer accept-student <employer_id> <internship_id> <student_id>")
     print("  flask employer reject-student <employer_id> <internship_id> <student_id>")
@@ -223,7 +199,10 @@ def view_shortlist_command(employer_id):
 def accept_student_command(employer_id, internship_id, student_id):
     result = accept_student(employer_id, internship_id, student_id)
     print("---------------------------------------------------------------------------")
-    print(result)   
+    if result:
+        print(f"Student ID {student_id} has been accepted for internship ID {internship_id}")
+    else:
+        print("Failed to accept student - check if student is in shortlist and IDs are correct")  
     print("\nNext: As student, view your shortlist with:")
     print("  flask student view-my-shortlist <student_id>")
     print("---------------------------------------------------------------------------")
@@ -235,7 +214,10 @@ def accept_student_command(employer_id, internship_id, student_id):
 def reject_student_command(employer_id, internship_id, student_id):
     result = reject_student(employer_id, internship_id, student_id)
     print("---------------------------------------------------------------------------")
-    print(result)
+    if result:
+        print(f"Student ID {student_id} has been rejected from internship ID {internship_id}")
+    else:
+        print("Failed to reject student - check if student is in shortlist and IDs are correct")
     print("\nNext: As student, view your shortlist with:")
     print("  flask student view-my-shortlist <student_id>")
     print("---------------------------------------------------------------------------")
@@ -253,7 +235,7 @@ def create_internship_command(employer_id, title, description, duration):
     print("---------------------------------------------------------------------------")
     print(result)
     print("\nNext: As staff, view all internship positions with:")
-    print("flask staff view-internships")
+    print("  flask staff view-internships <staff_id>")
     print("---------------------------------------------------------------------------")
    
 
@@ -270,8 +252,8 @@ def create_student_command(username, password, email, firstname, lastname, skill
     result = create_student(username, password, email, firstname, lastname, skills)
     print("---------------------------------------------------------------------------")
     print(result)
-    print("\nNext: Create an internship for this employer with:")
-    print("  flask internship create <employer_id> <title> <description> <duration>")
+    print("\nNext: As staff, add student to shortlists with:")
+    print("  flask staff add-student <staff_id> <shortlist_id> <student_id>")
     print("---------------------------------------------------------------------------")
 
 @student_cli.command("view-my-shortlist", help="View my shortlists")
@@ -279,13 +261,14 @@ def create_student_command(username, password, email, firstname, lastname, skill
 def view_my_shortlist_command(student_id):
     result = view_my_shortlists(student_id)
     print("---------------------------------------------------------------------------")
-    if "error" in result:
-        print(f"Error: {result['error']}")
+    if result is None:  
+        print("Error: Student not found or database error")
+    elif not result:
+        print("No shortlists found")
     else:
-        print(f"Shortlists for Student {result.get('student_id', 'N/A')}:")
-        for shortlist in result.get('shortlists', []):
+        print("Shortlists found:")
+        for shortlist in result: 
             print(f"Internship: {shortlist['internship_title']}, Company: {shortlist['company_name']}, Status: {shortlist['status']}")
-        print(f"Total shortlists: {result.get('total', 0)}")
     print("---------------------------------------------------------------------------")
 
 app.cli.add_command(staff_cli)

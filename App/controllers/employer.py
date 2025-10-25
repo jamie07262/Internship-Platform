@@ -13,120 +13,86 @@ def create_employer(username: str, password: str, email: str, companyName: str):
         return f"Error creating employer: {e}"
 
 
-def view_shortlist(employer_id: int) -> dict:
+def view_shortlist(employer_id: int):
     try:
-        employer = db.session.get(Employer, employer_id)
+        # Get employer and their internships
+        employer = Employer.query.get(employer_id)
         if not employer:
-            return {"error": f"Employer with ID {employer_id} not found"}
+            return None
         
-        # Get all shortlists for all internships created by this employer
-        shortlists = db.session.execute(
-            db.select(Shortlist)
-            .join(Internship, Shortlist.internship_id == Internship.id)
-            .filter(Internship.employer_id == employer_id)
-        ).scalars().all()
+        internships = Internship.query.filter_by(employer_id=employer_id).all()
+        shortlisted_data = []
+        
+        for internship in internships:
+            shortlists = Shortlist.query.filter_by(internship_id=internship.id).all()
 
-        shortlists_data = []
-        for shortlist in shortlists:
-            internship = db.session.get(Internship, shortlist.internship_id)
-            entries = db.session.execute(
-                db.select(ShortlistEntry).filter_by(shortlist_id=shortlist.id)
-            ).scalars().all()
-            
-            if entries:
+            for shortlist in shortlists:
+                entries = ShortlistEntry.query.filter_by(shortlist_id=shortlist.id).all()
+                
                 for entry in entries:
-                    student = db.session.get(Student, entry.student_id)
-                    shortlists_data.append({
-                        "shortlist_id": shortlist.id,
-                        "internship_id": shortlist.internship_id,
-                        "internship_title": internship.title if internship else "N/A",
-                        "student_id": student.id if student else None,
-                        "student_name": f"{student.firstName} {student.lastName}" if student else "N/A",
-                        "student_email": student.email if student else "N/A",
-                        "student_skills": student.skills if student else "N/A",
-                        "status": entry.status
-                    })
-            else:
-                shortlists_data.append({
-                    "shortlist_id": shortlist.id,
-                    "internship_id": shortlist.internship_id,
-                    "internship_title": internship.title if internship else "N/A",
-                    "student_id": "No students",
-                    "student_name": "N/A",
-                    "student_email": "N/A",
-                    "student_skills": "N/A",
-                    "status": "N/A"
-                })
+                    student = Student.query.get(entry.student_id)
+                    if student:
+                        shortlisted_data.append({
+                            "shortlist_id": shortlist.id, 
+                            "internship_title": internship.title,
+                            "internship_id": internship.id,
+                            "student_id": student.id,
+                            "student_name": f"{student.firstName} {student.lastName}",
+                            "student_email": student.email,
+                            "student_skills": student.skills,
+                            "status": entry.status
+                        })
         
-        return {
-            "employer": {
-                "id": employer.id,
-                "company_name": employer.companyName
-            },
-            "shortlists": shortlists_data,
-            "total": len(shortlists_data)
-        }
+        return shortlisted_data
     except SQLAlchemyError as e:
-        return {"error": f"Database error: {str(e)}"}
+        return f"Error viewing shortlist: {e}"
 
-def accept_student(employer_id: int, internship_id: int, student_id: int) -> str:
+def accept_student(employer_id: int, internship_id: int, student_id: int) -> bool:
     try:
-        # Checking if the internship belongs to the employer
-        internship = db.session.get(Internship, internship_id)
+        # Get the internship and verify employer 
+        internship = Internship.query.get(internship_id)
         if not internship:
-            return f"Internship not found for ID {internship_id}."
-        if internship.employer_id != employer_id:
-            return f"Employer ID {employer_id} is not authorized to manage internship ID {internship_id}."
-        
-        shortlist = db.session.execute(
-            db.select(Shortlist).filter_by(internship_id=internship_id)
-        ).scalar_one_or_none()
+            return False
+        if int(internship.employer_id) != int(employer_id):
+            return False
+
+        shortlist = Shortlist.query.filter_by(internship_id=internship_id).first()
 
         if not shortlist:
-            return f"No shortlist found for internship ID {internship_id}."
-        
-        entry = db.session.execute(
-            db.select(ShortlistEntry).filter_by(shortlist_id=shortlist.id, student_id=student_id)
-        ).scalar_one_or_none()
+            return False
+
+        entry = ShortlistEntry.query.filter_by(shortlist_id=shortlist.id, student_id=student_id).first()
 
         if not entry:
-            return f"No shortlist entry for student ID {student_id} in internship ID {internship_id}."
-        
-        # Update the status to "accepted"
+            return False
+
         entry.status = "accepted"
         db.session.commit()
-        return f"Student ID {student_id} has been accepted by {internship.employer.username}."
+        return True
     except SQLAlchemyError as e:
         db.session.rollback()
-        return f"Error accepting student: {e}"
+        return False
 
-def reject_student(employer_id: int, internship_id: int, student_id: int) -> str:
+def reject_student(employer_id: int, internship_id: int, student_id: int) -> bool:
     try:
-        # Checking if the internship belongs to the employer
-        internship = db.session.get(Internship, internship_id)
+        # Get the internship and verify employer
+        internship = Internship.query.get(internship_id)
         if not internship:
-            return f"Internship not found for ID {internship_id}."
-        if internship.employer_id != employer_id:
-            return f"Employer ID {employer_id} is not authorized to manage internship ID {internship_id}."
+            return False
+        if int(internship.employer_id) != int(employer_id):
+            return False
         
-        shortlist = db.session.execute(
-            db.select(Shortlist).filter_by(internship_id=internship_id)
-        ).scalar_one_or_none()
-
+        shortlist = Shortlist.query.filter_by(internship_id=internship_id).first()
         if not shortlist:
-            return f"No shortlist found for internship ID {internship_id}."
-        
-        entry = db.session.execute(
-            db.select(ShortlistEntry).filter_by(shortlist_id=shortlist.id, student_id=student_id)
-        ).scalar_one_or_none()
+            return False
 
+        entry = ShortlistEntry.query.filter_by(shortlist_id=shortlist.id, student_id=student_id).first()
         if not entry:
-            return f"No shortlist entry for student ID {student_id} in internship ID {internship_id}."
-        
-        # Update the status to "rejected"
+            return False
+
         entry.status = "rejected"
         db.session.commit()
-        return f"Student ID {student_id} has been rejected by {internship.employer.username}."
+        return True
     except SQLAlchemyError as e:
         db.session.rollback()
-        return f"Error rejecting student: {e}"
+        return False

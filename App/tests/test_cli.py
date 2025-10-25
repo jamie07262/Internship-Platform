@@ -35,9 +35,9 @@ def test_full_workflow(runner):
     assert 'Next: Create an internship for this employer with:' in result.output
     employer_id = extract_id(result.output, r'ID: (\d+)') if 'ID:' in result.output else None
 
-    # 4. Create internship
+    # 4. Create internship 
     result = runner.invoke(app.cli, [
-        'internship', 'create', 2, 'Software Intern', 'Work on Java projects', '3', 'Open'
+        'internship', 'create', str(employer_id or 3), 'Software Intern', 'Work on Java projects', '3'
     ])
     print(result.output)
     assert 'created' in result.output or result.exit_code == 0
@@ -45,41 +45,38 @@ def test_full_workflow(runner):
     internship_id = extract_id(result.output, r'ID: (\d+)') if 'ID:' in result.output else None
 
     # 5. Staff views internships
-    result = runner.invoke(app.cli, ['staff', 'view-internships'])
+    result = runner.invoke(app.cli, ['staff', 'view-internships', str(staff_id or 1)])
     print(result.output)
     assert 'Internship' in result.output or result.exit_code == 0
     assert 'Next: As staff, create a shortlist for an internship with:' in result.output
 
-    # 6. Staff creates shortlist for internship
+    # 6. Staff creates shortlist for the new internship
     result = runner.invoke(app.cli, [
-        'staff', 'create-shortlist', 1, 1
+        'staff', 'create-shortlist', str(staff_id or 1), str(internship_id or 3)
     ])
     print(result.output)
     assert 'Shortlist' in result.output or result.exit_code == 0
-    assert 'Next: As staff, search for students by skill with:' in result.output
+    assert 'Next: As staff, add a student to a shortlist with:' in result.output
     shortlist_id = extract_id(result.output, r'ID:?(\d+)') if 'ID' in result.output else None
 
-    # 7. Create student (argument order: firstname, lastname, username, password, email, skills)
+    # 7. Create student 
     result = runner.invoke(app.cli, [
         'student', 'create',
-        'Jane', 'Smith', 'janesmith', 'janesmithpass', 'jane.smith@student.com', 'Java, SpringBoot'
+        'janesmith', 'janesmithpass', 'jane.smith@student.com', 'Jane', 'Smith', 'Java, SpringBoot'
     ])
     print(result.output)
     assert 'created' in result.output or result.exit_code == 0
     student_id = extract_id(result.output, r'ID: (\d+)') if 'ID:' in result.output else None
 
-    # 8. Staff searches students by skill
-    result = runner.invoke(app.cli, ['staff', 'search-students', 'Java'])
+    # 8. Staff lists students
+    result = runner.invoke(app.cli, ['staff', 'list-students', str(staff_id or 1)])
     print(result.output)
     assert 'Students' in result.output or result.exit_code == 0
     assert 'Next: As staff, add a student to a shortlist with:' in result.output
 
     # 9. Staff adds student to shortlist
     result = runner.invoke(app.cli, [
-        'staff', 'add-student', str(staff_id or 1), str(shortlist_id or 1),5
-    ])
-    result = runner.invoke(app.cli, [
-        'staff', 'add-student', str(staff_id or 1), str(shortlist_id or 1), 6
+        'staff', 'add-student', str(staff_id or 1), str(shortlist_id or 3), str(student_id or 7)
     ])
     print(result.output)
     assert 'added' in result.output or result.exit_code == 0
@@ -87,7 +84,7 @@ def test_full_workflow(runner):
 
     # 10. Employer views shortlist for their internship
     result = runner.invoke(app.cli, [
-        'employer', 'view-shortlist', 2, str(internship_id or 1)
+        'employer', 'view-shortlist', str(employer_id or 3)
     ])
     print(result.output)
     assert 'Shortlist' in result.output or result.exit_code == 0
@@ -95,31 +92,31 @@ def test_full_workflow(runner):
 
     # 11. Employer accepts student
     result = runner.invoke(app.cli, [
-        'employer', 'accept-student', 1, 5
+        'employer', 'accept-student', str(employer_id or 3), str(internship_id or 3), str(student_id or 7)
     ])
     print(result.output)
     assert 'accepted' in result.output or result.exit_code == 0
     assert 'Next: As student, view your shortlist with:' in result.output
-
-    # 12. Student views their shortlist
+ 
+    # 12. Student views their shortlist (should show accepted status)
     result = runner.invoke(app.cli, [
-        'student', 'view-my-shortlist', 5
+        'student', 'view-my-shortlist', str(student_id or 7)
     ])
     print(result.output)
     assert 'Shortlist' in result.output or result.exit_code == 0
     assert 'accepted' in result.output or result.exit_code == 0
 
-    # 13. Employer rejects student (to test rejection as well)
+    # 13. Employer rejects student 
     result = runner.invoke(app.cli, [
-        'employer', 'reject-student', str(shortlist_id or 1), 6
+        'employer', 'reject-student', str(employer_id or 2), str(internship_id or 1), str(student_id or 6)
     ])
     print(result.output)
     assert 'rejected' in result.output or result.exit_code == 0
     assert 'Next: As student, view your shortlist with:' in result.output
 
-    # 14. Student views their shortlist again (should show rejected)
+    # 14. Student views their shortlist (should show rejected status)
     result = runner.invoke(app.cli, [
-        'student', 'view-my-shortlist', 6
+        'student', 'view-my-shortlist', str(student_id or 6)
     ])
     print(result.output)
     assert 'Shortlist' in result.output or result.exit_code == 0
